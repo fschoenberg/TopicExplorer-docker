@@ -1,32 +1,32 @@
-#TopicExplorer-docker
+# TopicExplorer-docker
 
-##Description
+## Description
 [TopicExplorer](http://topicexplorer.informatik.uni-halle.de) integrates all services neccessary for topic-modeling into a single web-application. TopicExplorer-Docker provides containers to ease the installation of TopicExplorer on a local computer based on docker-compose.
 
-##Installation
-####Step 1: prerequisites
+## Installation
+#### Step 1: prerequisites
 Install [docker](https://docs.docker.com/install/) at least version 18.0 and [docker-compose](https://docs.docker.com/compose/install/) at least version 3.4 at your local machine.
 Both software packages are available for Windows, Mac and Linux.
-####Step 2: download and set password
+#### Step 2: download and set password
 Download or clone this repository to your local computer. Navigate to the folder `TopicExplorer-docker`. Rename the file `te_mysql_password.change-me` to `te_mysql_password` and change the password inside it.
-####Step 3: build containers
+#### Step 3: build containers
 Build the containers for the services of the web-application by running in the folder `TopicExplorer-docker`
 ```
 docker-compose build
 ```
 This takes some time depending on the speed of your internet connection and your computer.
 
-##Use TopicExplorer
-###Start the web-application
+## Use TopicExplorer
+### Start the web-application
 The services of the web-application, e.g. local web-server and database, are started by running
 ```
 docker-compose up
 ```
 For the first time, the volume directories are initialized, e.g. database `TE_MANAGEMENT` is created. This takes some time, but this steps are skiped at subsequent restarts.
-###Use the TopicExplorer-Workflow
+### Use the TopicExplorer-Workflow
 When docker-compose is running, open the Html-file `start-topicexplorer-workflow.html` in your browser.
 
-####Create a Corpus for Topic-Modelling
+#### Create a Corpus for Topic-Modelling
 The initial step is not automized yet, but very flexible to fit many scenarios.
 Start to create a corpus of documents in the `TE_MANAGEMENT` database by following the [link to adminer](http://localhost:8002/?server=topicexplorer-db&username=root&db=TE_MANAGEMENT&sql=) in the Html-file. Login into the database as root with the password you selected earlier. Choose the SQL-Command link in adminer and create two tables by copy-paste the sql-code below into adminer and replace `<CORPUS-NAME>` with the corpus name in upper case.
 ```
@@ -71,7 +71,7 @@ insert into SEARCH_STRING VALUES(1,'bicycle AND germany AND holiday','BICYCLE');
 insert into CRAWL values(1,now(),'CORPUS_BICYCLE',0,now(),'root');
 ```
 Alternatively, a corpus can be imported as mysqldump-file with adminer.
-####Prepare the corpus and create a topic model
+#### Prepare the corpus and create a topic model
 These steps are supported by the web-application of TopicExplorer.
 Open the creator-link that leads to an overview page.
 It shows the list of available corpora.
