@@ -1,0 +1,101 @@
+FROM alpine/git AS git-repos
+WORKDIR /repos
+RUN git clone  https://github.com/hinneburg/TopicExplorer.git
+RUN git clone https://github.com/hinneburg/CommandManager.git && \
+    cd CommandManager && git checkout v1.0 && cd ../
+RUN git clone https://github.com/hinneburg/lucene-analyzer-treetagger.git &&\
+    pwd && ls -la
+
+FROM maven:3-jdk-7-alpine AS maven
+COPY --from=git-repos /repos /usr/src/
+RUN ls /usr/src/ \
+    && cd /usr/src/lucene-analyzer-treetagger \
+    && mvn install -DskipTests
+RUN cd /usr/src/CommandManager \
+    && mvn install
+RUN cd /usr/src/TopicExplorer && \
+    mvn package && \
+    ls distribution/target
+
+FROM codesimple/elm:0.18 AS elm
+COPY --from=git-repos /repos/TopicExplorer/creator-server/frontend /code
+RUN cd /code \
+    && elm-make --yes --warn --output index.html src/CreatorConfig.elm
+
+FROM haskell:7.10 AS haskell
+WORKDIR /creator-server
+RUN cabal update
+COPY --from=git-repos  /repos/TopicExplorer/creator-server/ /creator-server/
+RUN cd /creator-server \
+    && cabal install --force-reinstalls common/ creator/
+
+
+FROM r-base AS topicexplorer
+RUN apt-get  update \
+    && apt-get install -y --no-install-recommends default-jre
+RUN /bin/bash -c "mkdir -p /topicexplorer/{distribution,tomcat,html}"
+COPY --from=maven /usr/src/TopicExplorer/distribution/target/distribution-1.4-SNAPSHOT-preprocessing/ /topicexplorer/distribution/
+RUN apt-get install -y --no-install-recommends wget \
+    && cd /topicexplorer\
+    && wget https://archive.apache.org/dist/tomcat/tomcat-6/v6.0.53/bin/apache-tomcat-6.0.53.tar.gz \
+    && tar -zxf apache-tomcat-6.0.53.tar.gz \
+    && rm apache-tomcat-6.0.53.tar.gz
+RUN /bin/bash -c "mkdir -p /topicexplorer/apache-tomcat-6.0.53/webapp_skeleton/{te,nlp}"
+COPY --from=maven /usr/src/TopicExplorer/webapp/target/webapp/ /topicexplorer/apache-tomcat-6.0.53/webapp_skeleton/te/
+COPY --from=maven /usr/src/TopicExplorer/webapp-preprocessing/target/webapp-preprocessing/ /topicexplorer/apache-tomcat-6.0.53/webapp_skeleton/nlp/
+
+COPY --from=elm /code/index.html /topicexplorer/html
+COPY --from=haskell /creator-server/creator/dist/build/creator-server /topicexplorer/
+RUN apt-get install -y --no-install-recommends mecab mecab-ipadic mecab-jumandic-utf8 \
+    && mecab -v
+RUN mkdir -p /topicexplorer/treetagger \
+    && cd /topicexplorer/treetagger \
+    && wget \
+ http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/data/tree-tagger-linux-3.2.1.tar.gz \
+ http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/data/tagger-scripts.tar.gz \
+ http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/data/install-tagger.sh \
+ http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/data/english-par-linux-3.2-utf8.bin.gz \
+ http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/data/german-par-linux-3.2-utf8.bin.gz \
+    && sh install-tagger.sh \
+    && echo 'Hello world!' | cmd/tree-tagger-english
+RUN  cd /topicexplorer/treetagger \
+     && mkdir models \
+     && cd models \
+     && ln ../lib/german-utf8.par \
+     && ln ../lib/english-utf8.par
+
+RUN apt-get install -y --no-install-recommends mariadb-client netbase
+RUN apt-get install -y --no-install-recommends nginx curl
+RUN apt-get install -y --no-install-recommends libmecab-jni mecab-ipadic-utf8
+
+
+RUN mkdir /topicexplorer/install
+COPY ./install   /topicexplorer/install
+COPY ./topicexplorer.conf  /etc/nginx/sites-enabled/.
+ARG TE_BASE_DIR
+ARG TE_VERSION
+
+RUN  cd  /topicexplorer/install \
+     && ./install_te_production_directories.sh /topicexplorer/distribution \
+     && mkdir -p /topicexplorer/te-production/helper/te_config_template_jp
+
+COPY ./te_config_template_jp/ /topicexplorer/te-production/helper/te_config_template_jp/
+
+# Save the basic web apps in another folder to copy them back into fresh volumes
+RUN mkdir -p /topicexplorer/apache-tomcat-6.0.53/webapp_basics \
+    && cp -R /topicexplorer/apache-tomcat-6.0.53/webapps/* /topicexplorer/apache-tomcat-6.0.53/webapp_basics/.
+COPY ./tomcat6/conf/ /topicexplorer/apache-tomcat-6.0.53/conf/
+COPY ./tomcat6/bin/ /topicexplorer/apache-tomcat-6.0.53/bin/
+
+
+RUN mkdir /topicexplorer/script
+COPY ./script /topicexplorer/script
+
+RUN rm /etc/nginx/sites-enabled/default
+
+
+COPY ./startup.sh /topicexplorer/
+
+RUN chmod 755 /topicexplorer/install/create_tedb.sh
+
+CMD /bin/bash -c "service nginx start && cd /topicexplorer && chmod 755 startup.sh && ./startup.sh"

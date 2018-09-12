@@ -1,0 +1,4 @@
+[client]
+user=<TE_MANAGEMENT_DB_USER>
+password=<TE_MANAGEMENT_DB_PASSWORD>
+host=topicexplorer-db
