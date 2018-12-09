@@ -7,6 +7,15 @@ if [ ! -v TE_BASE_DIR ]; then
     exit 1
 fi
 
+#check for base directory for configurations
+#TE_BASE_DIR ... for /helper/tmp/data/token.csv
+if [ ! -v TE_TMP ]; then
+    echo "environment variable TE_TMP for the TE tmp directory is not set: example TE_TMP=/te_production/helper/tmp_de"
+    exit 1
+fi
+
+
+
 #check for login file for mysql db TE_MANAGEMENT
 if [ ! -v MYSQL_TE_MANAGEMENT_LOGIN_FILE ]; then
     echo "environment variable MYSQL_TE_MANAGEMENT_LOGIN_FILE for local mysql login to TE_MANAGEMENT database is not set: example MYSQL_TE_MANAGEMENT_LOGIN_FILE=/topicexplorer/my.cnf"
@@ -41,23 +50,28 @@ TE_MANAGEMENT_DB_USER=$(grep 'user=' "$MYSQL_TE_MANAGEMENT_LOGIN_FILE" |sed 's/u
 TE_MANAGEMENT_DB_PASSWORD=$(grep 'password=' "$MYSQL_TE_MANAGEMENT_LOGIN_FILE" |sed 's/password=//g')
 
 #clean up
-# Recreate the general project directory to run the te-computations
-rm -rf "$TE_BASE_DIR"/helper/tmp/*
-cp -R "$TE_BASE_DIR"/helper/template/* "$TE_BASE_DIR"/helper/tmp/
+
+# Create  tmp dir if not exists
+if [ ! -d "$TE_TMP" ]; then
+  mkdir "$TE_TMP"
+fi
+
+rm -rf "$TE_TMP"/*
+cp -R "$TE_BASE_DIR"/helper/template/* "$TE_TMP"/
 #copy configuration template to tmp
-cp "$TE_CONFIG_TEMPLATE_BLOGS_JP"/cmdb.local.properties "$TE_BASE_DIR"/helper/tmp/resources/.
-cp "$TE_CONFIG_TEMPLATE_BLOGS_JP"/log4j.local.properties "$TE_BASE_DIR"/helper/tmp/resources/.
-cp "$TE_CONFIG_TEMPLATE_BLOGS_JP"/mecab.local.properties "$TE_BASE_DIR"/helper/tmp/resources/.
+cp "$TE_CONFIG_TEMPLATE_BLOGS_JP"/cmdb.local.properties "$TE_TMP"/resources/.
+cp "$TE_CONFIG_TEMPLATE_BLOGS_JP"/log4j.local.properties "$TE_TMP"/resources/.
+cp "$TE_CONFIG_TEMPLATE_BLOGS_JP"/mecab.local.properties "$TE_TMP"/resources/.
 TE_IDENTIFIER=TMP
 #replace placeholders in temporary config files
-sed -i -- "s/<TE_DBSERVER>/$(echo $TE_DBSERVER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  "$TE_BASE_DIR"/helper/tmp/resources/*
-sed -i -- "s/<TE_MANAGEMENT_DB_NAME>/$(echo $TE_MANAGEMENT_DB_NAME | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  "$TE_BASE_DIR"/helper/tmp/resources/*
-sed -i -- "s/<TE_MANAGEMENT_DB_USER>/$(echo $TE_MANAGEMENT_DB_USER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  "$TE_BASE_DIR"/helper/tmp/resources/*
-sed -i -- "s/<TE_MANAGEMENT_DB_PASSWORD>/$(echo $TE_MANAGEMENT_DB_PASSWORD | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  "$TE_BASE_DIR"/helper/tmp/resources/*
-sed -i -- "s/<TE_IDENTIFIER>/$(echo $TE_IDENTIFIER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  "$TE_BASE_DIR"/helper/tmp/resources/*
+sed -i -- "s/<TE_DBSERVER>/$(echo $TE_DBSERVER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  "$TE_TMP"/resources/*
+sed -i -- "s/<TE_MANAGEMENT_DB_NAME>/$(echo $TE_MANAGEMENT_DB_NAME | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  "$TE_TMP"/resources/*
+sed -i -- "s/<TE_MANAGEMENT_DB_USER>/$(echo $TE_MANAGEMENT_DB_USER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  "$TE_TMP"/resources/*
+sed -i -- "s/<TE_MANAGEMENT_DB_PASSWORD>/$(echo $TE_MANAGEMENT_DB_PASSWORD | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  "$TE_TMP"/resources/*
+sed -i -- "s/<TE_IDENTIFIER>/$(echo $TE_IDENTIFIER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  "$TE_TMP"/resources/*
 
 #run computation of topicexplorer
-cd "$TE_BASE_DIR"/helper/tmp
+cd "$TE_TMP"/
 ./bin/run-jobmanagement.sh
 
 #get TE_IDENTIFIER
@@ -82,7 +96,7 @@ cat "$TE_IDENTIFIER"_te.tar | (mkdir "$TE_WEBAPP_BASE_DIR"/"${TE_IDENTIFIER}"_te
 
 #save output to the project directory
 #update config files and data
-cp "$TE_BASE_DIR"/helper/tmp/resources/*.* "$TE_BASE_DIR"/project/"$TE_IDENTIFIER"/resources/.
-cp "$TE_BASE_DIR"/helper/tmp/data/*.* "$TE_BASE_DIR"/project/"$TE_IDENTIFIER"/data/.
+cp "$TE_TMP"/resources/*.* "$TE_BASE_DIR"/project/"$TE_IDENTIFIER"/resources/.
+cp "$TE_TMP"/data/*.* "$TE_BASE_DIR"/project/"$TE_IDENTIFIER"/data/.
 #append the log file from helper/tmp to the log in project/TE_IDENTIFIER
-cat "$TE_BASE_DIR"/helper/tmp/logs/TMP.log >>"$TE_BASE_DIR"/project/"$TE_IDENTIFIER"/logs/"$TE_IDENTIFIER".log
+cat "$TE_TMP"/logs/TMP.log >>"$TE_BASE_DIR"/project/"$TE_IDENTIFIER"/logs/"$TE_IDENTIFIER".log

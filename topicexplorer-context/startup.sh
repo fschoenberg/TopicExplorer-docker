@@ -1,5 +1,17 @@
 #!/bin/bash
 
+function create_db_if_not_exists {
+  RESULT=$(mysqlshow --user=root --password=$(cat /topicexplorer/te_mysql_password) -h topicexplorer-db $1| grep -v Wildcard | grep -o $1)
+
+  if [ "$RESULT" == "$1" ]; then
+      echo Database $1 does exists
+  else
+    echo Database $1 does not exists
+    export TE_MANAGEMENT_DB_NAME=$1
+    bash -c ./install/create_tedb.sh
+  fi
+}
+
 # wait for mariadb
 until mysql -u root --password=$(cat /topicexplorer/te_mysql_password) -h  topicexplorer-db; do
   >&2 echo "Mariadb is unavailable"
@@ -24,21 +36,42 @@ export TE_DBSERVER_4MYSQL=%
 export TE_MANAGEMENT_DB_USER=root
 export TE_MANAGEMENT_DB_PASSWORD=$(cat /topicexplorer/te_mysql_password)
 
-RESULT=`mysqlshow --user=root --password=$(cat /topicexplorer/te_mysql_password) -h topicexplorer-db TE_MANAGEMENT| grep -v Wildcard | grep -o TE_MANAGEMENT`
-if [ "$RESULT" == "TE_MANAGEMENT" ]; then
-    echo Database TE_MANAGEMENT does exists
-else
-  echo Database TE_MANAGEMENT does not exists
-  bash -c ./install/create_tedb.sh
-fi
+create_db_if_not_exists TE_MANAGEMENT_JP_MECAB
+create_db_if_not_exists TE_MANAGEMENT_DE_TREETAGGER
+create_db_if_not_exists TE_MANAGEMENT_EN_TREETAGGER
 
 export JRE_HOME=/usr/lib/jvm/default-java
 cd /topicexplorer/apache-tomcat-6.0.53
 cp -R webapp_basics/* webapps/
 ./bin/startup.sh
 
+
 cd /topicexplorer
+
+# german
+export TE_MANAGEMENT_DB_NAME=TE_MANAGEMENT_DE_TREETAGGER
+export TE_CONFIG_TEMPLATE_BLOGS_JP="$TE_BASE_DIR"/helper/te_config_template_de_treetagger
+export TE_TMP="$TE_BASE_DIR"/helper/tmp_de_treetagger
 ./creator-server \
+     --port 7202 \
+     --script-dir=/topicexplorer/script \
+     --app-server=/webapp/ &
+
+# englisch
+export TE_MANAGEMENT_DB_NAME=TE_MANAGEMENT_EN_TREETAGGER
+export TE_CONFIG_TEMPLATE_BLOGS_JP="$TE_BASE_DIR"/helper/te_config_template_en_treetagger
+export TE_TMP="$TE_BASE_DIR"/helper/tmp_en_treetagger
+./creator-server \
+     --port 7201 \
+     --script-dir=/topicexplorer/script \
+     --app-server=/webapp/ &
+
+# japanese
+export TE_MANAGEMENT_DB_NAME=TE_MANAGEMENT_JP_MECAB
+export TE_CONFIG_TEMPLATE_BLOGS_JP="$TE_BASE_DIR"/helper/te_config_template_jp_mecab
+export TE_TMP="$TE_BASE_DIR"/helper/tmp_jp_mecab
+./creator-server \
+     --port 7200 \
      --script-dir=/topicexplorer/script \
      --app-server=/webapp/ #\
 #      >>creator-nohup.out 2>creator-nohup.err
