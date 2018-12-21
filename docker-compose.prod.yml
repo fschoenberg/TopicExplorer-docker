@@ -6,13 +6,6 @@ x-DEFAULT-ENVIRONMENT:
 services:
   topicexplorer:
     image: hinneburg/topicexplorer-docker:1.1.1
-    build:
-      dockerfile: Docker_topicexplorer
-      context: ./topicexplorer-context
-      args:
-        - *te-base-dir-default
-        - *te-version-default
-
     volumes:
       - "./volumes/topicexplorer_te_production_helper_tmp:/topicexplorer/te-production/helper/tmp"
       - "./volumes/topicexplorer_te_production_helper_config:/topicexplorer/te-production/config"
