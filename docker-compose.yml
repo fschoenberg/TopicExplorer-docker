@@ -5,7 +5,7 @@ x-DEFAULT-ENVIRONMENT:
 
 services:
   topicexplorer:
-    image: topicexplorer-docker
+    image: hinneburg/topicexplorer-docker:1.1.1
     build:
       dockerfile: Docker_topicexplorer
       context: ./topicexplorer-context
