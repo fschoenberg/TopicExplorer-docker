@@ -19,6 +19,10 @@ services:
       - "./volumes/topicexplorer_te_production_projects:/topicexplorer/te-production/project"
       - "./volumes/topicexplorer_webapps:/topicexplorer/apache-tomcat-6.0.53/webapps"
       - "./te_mysql_password:/topicexplorer/te_mysql_password"
+      - "./volumes/jobson-server-jobs:/topicexplorer/jobson-server/jobs"
+      - "./volumes/jobson-server-wds:/topicexplorer/jobson-server/wds"
+      - "./volumes/input-corpora/text:/topicexplorer/input-corpora/text"
+      - "./volumes/input-corpora/pdf:/topicexplorer/input-corpora/pdf"
     depends_on:
       - topicexplorer-db
       - adminer

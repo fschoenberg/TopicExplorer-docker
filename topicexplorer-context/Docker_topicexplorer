@@ -66,10 +66,15 @@ RUN  cd /topicexplorer/treetagger \
      && ln ../lib/german.par \
      && ln ../lib/english.par
 
-RUN apt-get  update
-RUN apt-get install -y --no-install-recommends mariadb-client netbase
-RUN apt-get install -y --no-install-recommends nginx curl
-RUN apt-get install -y --no-install-recommends libmecab-jni mecab-ipadic-utf8
+
+RUN apt-get  update && apt-get install -y --no-install-recommends \
+       mariadb-client \
+       netbase \
+       nginx \
+       curl \
+       libmecab-jni \
+       mecab-ipadic-utf8 \
+       poppler-utils
 
 
 RUN mkdir /topicexplorer/install
@@ -102,10 +107,21 @@ COPY  ./te_config_template_jp_mecab/ /topicexplorer/te-production/helper/te_conf
 COPY  ./te_config_template_de_treetagger/ /topicexplorer/te-production/helper/te_config_template_de_treetagger/
 COPY  ./te_config_template_en_treetagger/ /topicexplorer/te-production/helper/te_config_template_en_treetagger/
 
-COPY ./startup.sh /topicexplorer/
-
 RUN chmod 755 /topicexplorer/install/create_tedb.sh
 
 COPY ./start-topicexplorer-workflow.html /topicexplorer/html/index.html
+
+RUN wget https://github.com/adamkewley/jobson/releases/download/1.0.0/jobson_1.0.0_all.deb
+RUN dpkg -i jobson_1.0.0_all.deb  # contains dependencies on (e.g.) java
+RUN apt-get -f install
+
+RUN mkdir -p /topicexplorer/html/jobson
+RUN cp /usr/share/jobson/ui/html/* /topicexplorer/html/jobson/.
+
+RUN mkdir -p /topicexplorer/jobson-server
+RUN cd /topicexplorer/jobson-server && jobson new
+COPY ./jobson-server/ /topicexplorer/jobson-server/
+
+COPY ./startup.sh /topicexplorer/
 
 CMD /bin/bash -c "service nginx start && cd /topicexplorer && chmod 755 startup.sh && ./startup.sh"

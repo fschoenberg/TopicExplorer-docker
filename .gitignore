@@ -10,3 +10,11 @@
 !/volumes/topicexplorer_te_production_helper_tmp/.keep
 /volumes/topicexplorer_te_production_helper_config/*
 !/volumes/topicexplorer_te_production_helper_config/.keep
+/volumes/jobson-server-jobs/*
+!/volumes/jobson-server-jobs/.keep
+/volumes/jobson-server-wds/*
+!/volumes/jobson-wds/.keep
+/volumes/input-corpora/text/*
+!/volumes/input-corpora/text/.keep
+/volumes/input-corpora/pdf/*
+!/volumes/input-corpora/pdf/.keep

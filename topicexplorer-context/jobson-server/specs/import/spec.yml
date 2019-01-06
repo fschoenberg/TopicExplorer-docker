@@ -1,0 +1,75 @@
+name: Import folder with text files
+
+description: >
+
+  A folder with text files is imported as corpus into a TopicExplorer database.
+
+
+expectedInputs:
+
+- id: folder
+  type: string
+  name: Folder with corpus
+  description: Folder with text files # Optional
+  default: input
+
+
+- id: topicexplorerDatabase
+  type: select
+  name: TopicExplorer Database
+  description: Select TopicExplorer Database with the right language # Optional
+
+  options:
+  - id: TE_MANAGEMENT_DE_TREETAGGER
+    name: TreeTagger and German (TE_MANAGEMENT_DE_TREETAGGER)
+    description: TopicExplorer Database with TreeTagger and German
+  - id: TE_MANAGEMENT_EN_TREETAGGER
+    name: TreeTagger and English (TE_MANAGEMENT_EN_TREETAGGER)
+    description: TopicExplorer Database with TreeTagger and English
+  - id: TE_MANAGEMENT_JP_MECAB
+    name: MeCab and Japanese (TE_MANAGEMENT_JP_MECAB)
+    description: TopicExplorer Database with MeCab and Japanese
+
+
+  default: TE_MANAGEMENT_DE_TREETAGGER # Optional
+
+
+execution:
+
+  dependencies:
+  - source: import-folder.sh
+    target: import-folder.sh
+  - source: cmdb.local.properties
+    target: cmdb.local.properties
+  - source: log4j.local.properties
+    target: log4j.local.properties
+
+  application: bash
+
+  arguments:  # Optional
+  - import-folder.sh
+  - ${inputs.folder}
+  - ${inputs.topicexplorerDatabase}
+
+#  - ${toJSON(inputs)}
+#  - a non-special string arg
+#  - ${toFile(toJSON(request))}
+#  - ${inputs["string-example"]}
+#  - ${toJSON(inputs["sql-example"])}
+#  - A combination of text and templates ${inputs["string-example"]}
+#
+#  dependencies:
+#    source: some-file-in-spec-dir
+#    target: some-path-in-working-dir
+
+
+# expectedOutputs:
+#
+# - id: id-as-downloaded-by-client.zip
+#   path: path-written-by-runtime
+#   mimeType: application/octet-stream      # optional (autodetected otherwise)
+#   name: Name of the output                # optional
+#   description: Description of the output  # optional
+#
+# - id: ${request.id}_results.zip
+#   path: output.zip
