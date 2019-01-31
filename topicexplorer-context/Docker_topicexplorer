@@ -120,6 +120,9 @@ RUN cp /usr/share/jobson/ui/html/* /topicexplorer/html/jobson/.
 
 RUN mkdir -p /topicexplorer/jobson-server
 RUN cd /topicexplorer/jobson-server && jobson new
+
+RUN apt-get  update && apt-get install -y --no-install-recommends gawk
+
 COPY ./jobson-server/ /topicexplorer/jobson-server/
 
 COPY ./startup.sh /topicexplorer/

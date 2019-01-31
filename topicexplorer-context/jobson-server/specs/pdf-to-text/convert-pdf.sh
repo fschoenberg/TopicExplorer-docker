@@ -3,10 +3,20 @@
 INPUT_FOLDER=$1
 OUTPUT_DESTINATION=$2
 OUTPUT_FOLDER=$3
+RECURSIVE=$4
 
 if [ ! -d  "/topicexplorer/input-corpora/pdf/$INPUT_FOLDER" ]; then
     echo "Input folder $INPUT_FOLDER does not exists in ./volumes/input-corpora/pdf/"
     exit 1
+fi
+
+if [ $RECURSIVE = "do-search-all-subdirs-and-flatten-path" ]; then
+  mkdir ${INPUT_FOLDER}_tmp
+  . subdirs.sh
+  link_to_subdirs "/topicexplorer/input-corpora/pdf/${INPUT_FOLDER}" "${INPUT_FOLDER}_tmp" pdf
+  INPUT_FOLDER="${INPUT_FOLDER}_tmp"
+else
+  INPUT_FOLDER="/topicexplorer/input-corpora/pdf/$INPUT_FOLDER"
 fi
 
 mkdir ${OUTPUT_FOLDER}
@@ -16,7 +26,8 @@ fi
 
 echo "Starting to convert pdf files ..."
 
-for filename in /topicexplorer/input-corpora/pdf/${INPUT_FOLDER}/*; do
+# for filename in /topicexplorer/input-corpora/pdf/${INPUT_FOLDER}/*; do
+for filename in ${INPUT_FOLDER}/*; do
   [ -e "$filename" ] || continue
   target_filename=$(basename "$filename")
   echo "convert $filename to $target_filename.txt"
