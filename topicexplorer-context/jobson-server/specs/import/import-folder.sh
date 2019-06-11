@@ -3,6 +3,7 @@
 
 CORPUS_IDENTIFIER=$1
 TE_MANAGEMENT_DB_NAME=$2
+RECURSIVE=$3
 
 if [[ ! $CORPUS_IDENTIFIER =~ ^[A-Z][_0-9A-Z]{0,44}$ ]]; then
     echo "The folder name $CORPUS_IDENTIFIER is not a valid corpus identifier. Rename the folder such that is starts with capital letter and uses only capital letters, numbers and underscore but no whitespaces. Maximum length is 45 characters."
@@ -39,6 +40,15 @@ sed -i -- "s/<TE_MANAGEMENT_DB_NAME>/$(echo $TE_MANAGEMENT_DB_NAME | sed -e 's/\
 sed -i -- "s/<TE_MANAGEMENT_DB_USER>/$(echo $TE_MANAGEMENT_DB_USER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  cmdb.local.properties
 sed -i -- "s/<TE_MANAGEMENT_DB_PASSWORD>/$(echo $TE_MANAGEMENT_DB_PASSWORD | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  cmdb.local.properties
 
-java -Dfile.encoding=UTF-8 -classpath "/topicexplorer/te-production/distribution/standard/lib/*:." cc.topicexplorer.dataimport.ImportFolder --folder /topicexplorer/input-corpora/text/${CORPUS_IDENTIFIER}
+if [ $RECURSIVE = "do-search-all-subdirs-and-flatten-path" ]; then
+  mkdir ${CORPUS_IDENTIFIER}
+  . subdirs.sh
+  link_to_subdirs "/topicexplorer/input-corpora/text/${CORPUS_IDENTIFIER}" "${CORPUS_IDENTIFIER}" ''
+  INPUT_FOLDER="${CORPUS_IDENTIFIER}"
+else
+  INPUT_FOLDER="/topicexplorer/input-corpora/text/${CORPUS_IDENTIFIER}"
+fi
+
+java -Dfile.encoding=UTF-8 -classpath "/topicexplorer/te-production/distribution/standard/lib/*:." cc.topicexplorer.dataimport.ImportFolder --folder ${INPUT_FOLDER}
 
 exit $?

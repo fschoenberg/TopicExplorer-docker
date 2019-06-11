@@ -13,7 +13,7 @@ fi
 if [ $RECURSIVE = "do-search-all-subdirs-and-flatten-path" ]; then
   mkdir ${INPUT_FOLDER}_tmp
   . subdirs.sh
-  link_to_subdirs "/topicexplorer/input-corpora/pdf/${INPUT_FOLDER}" "${INPUT_FOLDER}_tmp" pdf
+  link_to_subdirs "/topicexplorer/input-corpora/pdf/${INPUT_FOLDER}" "${INPUT_FOLDER}_tmp" ".pdf"
   INPUT_FOLDER="${INPUT_FOLDER}_tmp"
 else
   INPUT_FOLDER="/topicexplorer/input-corpora/pdf/$INPUT_FOLDER"

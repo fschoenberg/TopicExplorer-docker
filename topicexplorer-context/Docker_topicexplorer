@@ -124,6 +124,7 @@ RUN cd /topicexplorer/jobson-server && jobson new
 RUN apt-get  update && apt-get install -y --no-install-recommends gawk
 
 COPY ./jobson-server/ /topicexplorer/jobson-server/
+COPY ./jobson-server/specs/pdf-to-text/subdirs.sh /topicexplorer/jobson-server/specs/import/
 
 COPY ./startup.sh /topicexplorer/
 

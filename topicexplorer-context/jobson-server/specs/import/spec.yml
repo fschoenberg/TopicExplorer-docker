@@ -13,6 +13,21 @@ expectedInputs:
   description: Folder with text files # Optional
   default: input
 
+- id: searchSubdirs
+  type: select
+  name: Handling of sub dirs
+  description: Specify if sub folders should be searched for text files
+
+  options:
+  - id: do-not-search-all-subdirs-and-flatten-path
+    name: import text files in the input folder and ignore sub-folders
+    description: The text files in input folder are imported. Sub-folders with text files are irgnored.
+  - id: do-search-all-subdirs-and-flatten-path
+    name: import text files in the input folder and all sub-folders
+    description: The text files in input folder and all sub-folders are imported. The paths to the sub-folders are flattened and prefixed to the names of the text files.
+
+  default: do-not-search-all-subdirs-and-flatten-path
+
 
 - id: topicexplorerDatabase
   type: select
@@ -43,6 +58,8 @@ execution:
     target: cmdb.local.properties
   - source: log4j.local.properties
     target: log4j.local.properties
+  - source: subdirs.sh
+    target: subdirs.sh
 
   application: bash
 
@@ -50,6 +67,7 @@ execution:
   - import-folder.sh
   - ${inputs.folder}
   - ${inputs.topicexplorerDatabase}
+  - ${inputs.searchSubdirs}
 
 #  - ${toJSON(inputs)}
 #  - a non-special string arg
