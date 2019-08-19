@@ -68,7 +68,7 @@ RUN  cd /topicexplorer/treetagger \
 
 RUN apt-get  update
 RUN apt-get install -y --no-install-recommends mariadb-client netbase
-RUN apt-get install -y --no-install-recommends nginx curl
+RUN apt-get install -y --no-install-recommends nginx curl=7.65.3-1
 RUN apt-get install -y --no-install-recommends libmecab-jni mecab-ipadic-utf8
 
 
