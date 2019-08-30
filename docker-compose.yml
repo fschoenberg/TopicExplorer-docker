@@ -46,7 +46,9 @@ services:
       - 3306
 
   adminer:
-    image: adminer:standalone
+    image: adminer:4.7.2-standalone
     restart: always
+    environment:
+    - ADMINER_PLUGINS=frames
     ports:
       - 8002:8080
