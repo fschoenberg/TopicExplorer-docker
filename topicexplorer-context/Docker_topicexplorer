@@ -111,8 +111,8 @@ RUN chmod 755 /topicexplorer/install/create_tedb.sh
 
 COPY ./start-topicexplorer-workflow.html /topicexplorer/html/index.html
 
-RUN wget https://github.com/adamkewley/jobson/releases/download/1.0.0/jobson_1.0.0_all.deb
-RUN dpkg -i jobson_1.0.0_all.deb  # contains dependencies on (e.g.) java
+RUN wget https://github.com/adamkewley/jobson/releases/download/1.0.6/jobson_1.0.6_all.deb
+RUN dpkg -i jobson_1.0.6_all.deb  # contains dependencies on (e.g.) java
 RUN apt-get -f install
 
 RUN mkdir -p /topicexplorer/html/jobson
