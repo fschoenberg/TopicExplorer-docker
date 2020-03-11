@@ -5,7 +5,7 @@ x-DEFAULT-ENVIRONMENT:
 
 services:
   topicexplorer:
-    image: hinneburg/topicexplorer-docker:1.1.1
+    image: hinneburg/topicexplorer-docker:1.1.2
     volumes:
       - "./volumes/topicexplorer_te_production_helper_tmp:/topicexplorer/te-production/helper/tmp"
       - "./volumes/topicexplorer_te_production_helper_config:/topicexplorer/te-production/config"
