@@ -46,7 +46,7 @@ services:
       - 3306
 
   adminer:
-    image: adminer:4.7.2-standalone
+    image: adminer:4.7.6-standalone
     restart: always
     environment:
     - ADMINER_PLUGINS=frames
