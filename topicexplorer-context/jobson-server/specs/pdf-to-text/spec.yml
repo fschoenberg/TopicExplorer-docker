@@ -1,0 +1,77 @@
+name: Convert folder with pdf files to text files
+
+description: >
+
+  Convert a folder with pdf files to text files. This can be a preprocessing step to import the folder with the converted text files as corpus into TopicExplorer.
+
+
+expectedInputs:
+
+- id: inputFolder
+  type: string
+  name: Input folder
+  description: Input folder with pdf files
+  default: input
+
+- id: searchSubdirs
+  type: select
+  name: Handling of sub dirs
+  description: Specify if sub folders should be searched for pdf files
+
+  options:
+  - id: do-not-search-all-subdirs-and-flatten-path
+    name: convert pdf files in the input folder and ignore sub-folders
+    description: The pdf files in input folder are imported. Sub-folders with pdf files are irgnored.
+  - id: do-search-all-subdirs-and-flatten-path
+    name: convert pdf files in the input folder and all sub-folders
+    description: The pdf files in input folder and all sub-folders are imported. The paths to the sub-folders are flattened and prefixed to the names of the pdf files.
+
+  default: do-not-search-all-subdirs-and-flatten-path
+
+- id: outputDestination
+  type: select
+  name: Destination of output Folder
+  description: Specify where the output folder with the text files is saved
+
+  options:
+  - id: InputForCorpusImport
+    name: Output folder as input folder for corpus import
+    description: Save output folder as input folder for corpus import. The output folder name must be a valid corpus identifier.
+  - id: JustOutput
+    name: Output folder in Download Zip
+    description: Output folder as temporary folder to allow further manual preprocessing. The output folder name has no restriction.
+
+  default: InputForCorpusImport
+
+- id: outputFolder
+  type: string
+  name: Output folder
+  description: Output folder with text files
+  default: output
+
+execution:
+
+  dependencies:
+  - source: convert-pdf.sh
+    target: convert-pdf.sh
+  - source: subdirs.sh
+    target: subdirs.sh
+
+  application: bash
+
+  arguments:  # Optional
+  - convert-pdf.sh
+  - ${inputs.inputFolder}
+  - ${inputs.outputDestination}
+  - ${inputs.outputFolder}
+  - ${inputs.searchSubdirs}
+
+expectedOutputs:
+  - id: ${request.id}_${request.name}_pdf2text.zip
+    path: output.zip
+    mimeType: application/octet-stream      # optional (autodetected otherwise)
+    name: Name of the output                # optional
+    description: Zip file with converted text files   # optional
+#
+# - id: ${request.id}_results.zip
+#   path: output.zip

@@ -4,7 +4,7 @@
 </head>
 <body>
 <h1>TopicExplorer-Workflow</h1>
-<h3>Overview</h3>
+<h2>Overview</h2>
 <ol>
   <li>
     <a href="#select-language">Select language and NLP-preprocessings</a>
@@ -19,7 +19,7 @@
     <a href="#create-topic-model">Create a Topic-Model</a>
   </li>
 </ol>
-<h3 id="select-language">Select language and NLP-preprocessing</h3>
+<h2 id="select-language">Select language and NLP-preprocessing</h2>
 TopicExplorer supports currently three langages using the NLP-software <a href="http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/">TreeTagger</a> for English and German and <a href="http://taku910.github.io/mecab/">MeCab</a> for Japanese. There are different corpus-databases and TopicExplorer-Creator interfaces for each of the three langage dependent NLP-configurations. After docker-compose started all containers on the local machine, the TopicExplorer-Creator interfaces become accessible at <a href="http://localhost:8001/">http://localhost:8001/</a>.
 
 <ul>
@@ -36,7 +36,7 @@ The databases for the three TopicExplorer-Creator interfaces are accessible thro
 </ul>
 
 
-<h3 id="create-corpus">Create a Corpus</h3>
+<h2 id="create-corpus">Create a Corpus</h2>
 <ul>
 <li>
 <a target="_blank" rel="noopener noreferrer"  href="http://localhost:8002/?server=topicexplorer-db&username=root&db=TE_MANAGEMENT_DE_TREETAGGER&sql=CREATE%20TABLE%20CORPUS_%3CCORPUS-NAME%3E%20(%0A%20%20%20%20DOCUMENT_ID%20%20%20%20INTEGER(11)%20NOT%20NULL%2C%0A%20%20%20%20TITLE%20%20%20%20%20%20%20%20%20%20VARCHAR(255)%20CHARACTER%20SET%20utf8mb4%20NOT%20NULL%2C%0A%20%20%20%20URL%20%20%20%20%20%20%20%20%20%20%20%20VARCHAR(255)%20CHARACTER%20SET%20utf8mb4%20NOT%20NULL%2C%0A%20%20%20%20DOCUMENT_DATE%20%20DATETIME%20NOT%20NULL%2C%0A%20%20%20%20CONSTRAINT%20DOCUMENT_ID_PK%20PRIMARY%20KEY%20(%20DOCUMENT_ID%20)%0A%20%20%20%20)%0A%20%20%20%20ENGINE%20%3D%20ARIA%20DEFAULT%20CHARSET%3Dutf8mb4%20COLLATE%3Dutf8mb4_bin%2C%0A%20%20%20%20TRANSACTIONAL%20%3D%201%2C%0A%20%20%20%20COMMENT%20%3D%20%27meta%20data%20of%20corpus%27%0A%3B%0A%0ACREATE%20TABLE%20CORPUS_%3CCORPUS-NAME%3E_TEXT%20(%0A%20%20%20%20DOCUMENT_ID%20%20%20%20INTEGER(11)%20NOT%20NULL%2C%0A%20%20%20%20DOCUMENT_TEXT%20%20MEDIUMTEXT%20CHARACTER%20SET%20utf8mb4%20NOT%20NULL%2C%0A%20%20%20%20CONSTRAINT%20DOCUMENT_ID_PK%20PRIMARY%20KEY%20(%20DOCUMENT_ID%20)%0A%20%20%20%20)%0A%20%20%20%20ENGINE%20%3D%20ARIA%20DEFAULT%20CHARSET%3Dutf8mb4%20COLLATE%3Dutf8mb4_bin%2C%0A%20%20%20%20TRANSACTIONAL%20%3D%201%2C%0A%20%20%20%20COMMENT%20%3D%20%27text%20data%20of%20corpus%27%0A%3B%0A">Create corpus table with adminer in the database for German corpora</a>
@@ -104,7 +104,7 @@ The databases for the three TopicExplorer-Creator interfaces are accessible thro
   insert into SEARCH_STRING VALUES(&#x3C;UNIQUE INTERGER&#x3E;,'&#x3C;UNIQUE SEARCH STRING&#x3E;','&#x3C;CORPUS-NAME&#x3E;');
   insert into CRAWL values(&#x3C;UNIQUE INTERGER&#x3E;,now(),'CORPUS_&#x3C;CORPUS-NAME&#x3E;',0,now(),'root');
 </pre>
-<h3 id="prepare-corpus">Prepare a Corpus</h3>
+<h2 id="prepare-corpus">Prepare a Corpus</h2>
 <ul>
 <li><a target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/de/treetagger/">Creator for German corpora using TreeTagger</a></li>
 <li><a  target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/en/treetagger/">Creator for English corpora using TreeTagger</a></li>
@@ -116,7 +116,7 @@ Open the creator that leads to an overview page. It shows the list of available 
 <p>
   When ready, a link to the NLP web-application appears. Open  it and follow the instructions to select the vocabulary and choose the number of topics. When the configuration of the topic model is submitted, go back to the overview page of the creator and wait and update until the topic model is readily computed.
 </p>
-<h3 id="create-topic-model">Create a Topic-Model</h3>
+<h2 id="create-topic-model">Create a Topic-Model</h2>
 <ul>
 <li><a target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/de/treetagger/">Creator for German corpora using TreeTagger</a></li>
 <li><a  target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/en/treetagger/">Creator for English corpora using TreeTagger</a></li>

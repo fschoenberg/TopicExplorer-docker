@@ -4,11 +4,8 @@
 </head>
 <body>
 <h1>TopicExplorer-Workflow</h1>
-<h3>Overview</h3>
+The workflow to create a topic model with TopicExplorer involves following three steps in the shown order:
 <ol>
-  <li>
-    <a href="#select-language">Select language and NLP-preprocessings</a>
-  </li>
   <li>
     <a href="#create-corpus">Create a Corpus</a>
   </li>
@@ -19,24 +16,93 @@
     <a href="#create-topic-model">Create a Topic-Model</a>
   </li>
 </ol>
-<h3 id="select-language">Select language and NLP-preprocessing</h3>
-TopicExplorer supports currently three langages using the NLP-software <a href="http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/">TreeTagger</a> for English and German and <a href="http://taku910.github.io/mecab/">MeCab</a> for Japanese. There are different corpus-databases and TopicExplorer-Creator interfaces for each of the three langage dependent NLP-configurations. After docker-compose started all containers on the local machine, the TopicExplorer-Creator interfaces become accessible at <a href="http://localhost:8001/">http://localhost:8001/</a>.
-
+<!-- <h2 id="select-language">Select language and NLP-preprocessing</h2> -->
+TopicExplorer supports currently English and German using the NLP-software <a target="_blank" rel="noopener noreferrer" href="http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/">TreeTagger</a>  and Japanese using <a target="_blank" rel="noopener noreferrer" href="http://taku910.github.io/mecab/">MeCab</a>. The scripts
 <ul>
-<li><a target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/de/treetagger/">Creator for German corpora using TreeTagger</a></li>
-<li><a  target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/en/treetagger/">Creator for English corpora using TreeTagger</a></li>
-<li><a  target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/jp/mecab/">Creator for Japanese corpora using MeCab</a></li>
+  <li><code>start-topicexplorer-window10.bat</code></li>
+  <li><code>start-topicexplorer-linux.sh</code></li>
+</ul>
+for the respective operating systems, which are located in the same folder as the Html-file your are reading, download the neccessary docker containers at the first time and start the services
+<ul>
+  <li>TopicExplorer-Creator <a  target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/en/treetagger/">English</a>, <a target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/de/treetagger/">German</a> and <a  target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/jp/mecab/">Japanese</a></li>
+  <li>Databases for <a  target="_blank" rel="noopener noreferrer" href="http://localhost:8002/?server=topicexplorer-db&username=root&db=TE_MANAGEMENT_EN_TREETAGGER">English</a>, <a  target="_blank" rel="noopener noreferrer" href="http://localhost:8002/?server=topicexplorer-db&username=root&db=TE_MANAGEMENT_DE_TREETAGGER">German</a> and <a  target="_blank" rel="noopener noreferrer" href="http://localhost:8002/?server=topicexplorer-db&username=root&db=TE_MANAGEMENT_JP_MECAB">Japanese</a> Corpora</li>
+  <li><a  target="_blank" rel="noopener noreferrer" href="http://localhost:8001/jobson/#/submit">Jobson</a> for
+    <ul>
+      <li>importing corpora from folders with text files</li>
+      <li>extracting text from folders with pdf files</li>
+      <li>show <a target="_blank" rel="noopener noreferrer" href="http://localhost:8001/jobson/#/jobs">running and finished jobs</a></li>
+    </ul>
+  </li>
+</ul>
+via docker-compose on your local computer. Make sure that all services are running by opening the links above in different tabs of your browser (firefox or chrome, not Internetexplorer or edge).
+
+<h2 id="create-corpus">Create a Corpus</h2>
+First, text documents with meta data need to be fed into the database of TopicExplorer to create a corpus. TopicExplorer currently supports three different sources of text documents:
+<ul>
+  <li>
+    <a href="#create-corpus-text-files">text files</a>
+  </li>
+  <li>
+    <a href="#prepare-corpus-pdf-files">pdf files</a>
+  </li>
+  <li>
+    <a href="#create-topic-model-spreadsheets">spreadsheet</a>
+  </li>
 </ul>
 
-The databases for the three TopicExplorer-Creator interfaces are accessible through the adminer-Web-application:
-<ul>
-<li><a  target="_blank" rel="noopener noreferrer" href="http://localhost:8002/?server=topicexplorer-db&username=root&db=TE_MANAGEMENT_DE_TREETAGGER">Database for German Corpora</a></li>
-<li><a  target="_blank" rel="noopener noreferrer" href="http://localhost:8002/?server=topicexplorer-db&username=root&db=TE_MANAGEMENT_EN_TREETAGGER">Database for English Corpora</a></li>
-<li><a  target="_blank" rel="noopener noreferrer" href="http://localhost:8002/?server=topicexplorer-db&username=root&db=TE_MANAGEMENT_JP_MECAB">Database for Japanese Corpora</a></li>
-</ul>
+<h3 id="create-corpus-text-files">Create Corpus from Text Files</h3>
+<ol>
+  <li>Point your file manageer to the folder of the TopicExplorer Project</li>
+  <li>Copy all text files into a sub folder of <code>./volumes/input-corpora/text/</code>,<br>
+    e.g. make a sub folder <code>my_corpus</code> in <code>./volumes/input-corpora/text/</code> and copy all text files into  <code>volumes/input-corpora/text/my_corpus/</code>.</li>
+  <li>Open <a  target="_blank" rel="noopener noreferrer" href="http://localhost:8001/jobson/#/submit">job submission of Jobson</a> in your browser</li>
+  <li>Select Job Spec: Import folder with text files.</li>
+  <li>Fill out the form
+    <ul>
+      <li>Choose a meaningful job name</li>
+      <li>Specify the input folder, e.g. in the example above <code>my_corpus</code></li>
+      <li>Specify the handling of sub folders, e.g. with or without subfolders of the folder <code>my_corpus</code>.</li>
+      <li>Select NLP-software and language</li>
+      <li>Submit Job</li>
+    </ul>
+  </li>
+  <li>Check for progress while the job is running
+    <ul>
+      <li>show <a target="_blank" rel="noopener noreferrer" href="http://localhost:8001/jobson/#/jobs">running and finished jobs</a></li>
+      <li>TopicExplorer-Creator <a  target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/en/treetagger/">English</a>, <a target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/de/treetagger/">German</a> and <a  target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/jp/mecab/">Japanese</a> shows increasing document numbers for the imported corpus during the import job.</li>
+  </li>
+</ol>
 
 
-<h3 id="create-corpus">Create a Corpus</h3>
+<h3 id="create-corpus-pdf-files">Create Corpus from PDF files</h3>
+<ol>
+  <li>Point your file manageer to the folder of the TopicExplorer Project</li>
+  <li>Copy all PDF files into a sub folder of <code>./volumes/input-corpora/pdf/</code>,<br>
+    e.g. make a sub folder <code>my_corpus</code> in <code>./volumes/input-corpora/pdf/</code> and copy all PDF files into  <code>volumes/input-corpora/pdf/my_corpus/</code>.</li>
+  <li>Open <a  target="_blank" rel="noopener noreferrer" href="http://localhost:8001/jobson/#/submit">job submission of Jobson</a> in your browser</li>
+  <li>Select Job Spec: Convert folder with pdf files to text files.</li>
+  <li>Fill out the form
+    <ul>
+      <li>Choose a meaningful job name</li>
+      <li>Specify the input folder, e.g. in the example above <code>my_corpus</code></li>
+      <li>Specify the handling of sub folders, e.g. with or without subfolders of the folder <code>my_corpus</code>.</li>
+      <li>Specify where the output, the extracted text files, should be saved</li>
+      <ul>
+        <li>Directly store to output in a sub folder of <code>./volumes/input-corpora/text/</code>. This allows to import of the text files as follow up job.</li>
+        <li>Make output available as downloadable zip file. Then the extracted text files could be worked over to remove noise from the extraction process. After this processing the text files could be imported as show above.</li>
+      </ul>
+      <li>Submit Job</li>
+    </ul>
+  </li>
+  <li>Check for progress while the job is running
+    <ul>
+      <li>show <a target="_blank" rel="noopener noreferrer" href="http://localhost:8001/jobson/#/jobs">running and finished jobs</a></li>
+    </ul>
+  </li>
+<li>After the pdf coversion job is finished, work through the import workflow of text files as shown above. In case, the output of the pdf conversion was stored into a sub folder of <code>./volumes/input-corpora/text/</code>, e.g. <code>my_corpus</code>, that sub folder is the new input folder for importing text files.</li>
+</ol>
+
+<h3 id="create-corpus-spreadsheets">Create Corpus from Speadsheet</h3>
 <ul>
 <li>
 <a target="_blank" rel="noopener noreferrer"  href="http://localhost:8002/?server=topicexplorer-db&username=root&db=TE_MANAGEMENT_DE_TREETAGGER&sql=CREATE%20TABLE%20CORPUS_%3CCORPUS-NAME%3E%20(%0A%20%20%20%20DOCUMENT_ID%20%20%20%20INTEGER(11)%20NOT%20NULL%2C%0A%20%20%20%20TITLE%20%20%20%20%20%20%20%20%20%20VARCHAR(255)%20CHARACTER%20SET%20utf8mb4%20NOT%20NULL%2C%0A%20%20%20%20URL%20%20%20%20%20%20%20%20%20%20%20%20VARCHAR(255)%20CHARACTER%20SET%20utf8mb4%20NOT%20NULL%2C%0A%20%20%20%20DOCUMENT_DATE%20%20DATETIME%20NOT%20NULL%2C%0A%20%20%20%20CONSTRAINT%20DOCUMENT_ID_PK%20PRIMARY%20KEY%20(%20DOCUMENT_ID%20)%0A%20%20%20%20)%0A%20%20%20%20ENGINE%20%3D%20ARIA%20DEFAULT%20CHARSET%3Dutf8mb4%20COLLATE%3Dutf8mb4_bin%2C%0A%20%20%20%20TRANSACTIONAL%20%3D%201%2C%0A%20%20%20%20COMMENT%20%3D%20%27meta%20data%20of%20corpus%27%0A%3B%0A%0ACREATE%20TABLE%20CORPUS_%3CCORPUS-NAME%3E_TEXT%20(%0A%20%20%20%20DOCUMENT_ID%20%20%20%20INTEGER(11)%20NOT%20NULL%2C%0A%20%20%20%20DOCUMENT_TEXT%20%20MEDIUMTEXT%20CHARACTER%20SET%20utf8mb4%20NOT%20NULL%2C%0A%20%20%20%20CONSTRAINT%20DOCUMENT_ID_PK%20PRIMARY%20KEY%20(%20DOCUMENT_ID%20)%0A%20%20%20%20)%0A%20%20%20%20ENGINE%20%3D%20ARIA%20DEFAULT%20CHARSET%3Dutf8mb4%20COLLATE%3Dutf8mb4_bin%2C%0A%20%20%20%20TRANSACTIONAL%20%3D%201%2C%0A%20%20%20%20COMMENT%20%3D%20%27text%20data%20of%20corpus%27%0A%3B%0A">Create corpus table with adminer in the database for German corpora</a>
@@ -104,7 +170,7 @@ The databases for the three TopicExplorer-Creator interfaces are accessible thro
   insert into SEARCH_STRING VALUES(&#x3C;UNIQUE INTERGER&#x3E;,'&#x3C;UNIQUE SEARCH STRING&#x3E;','&#x3C;CORPUS-NAME&#x3E;');
   insert into CRAWL values(&#x3C;UNIQUE INTERGER&#x3E;,now(),'CORPUS_&#x3C;CORPUS-NAME&#x3E;',0,now(),'root');
 </pre>
-<h3 id="prepare-corpus">Prepare a Corpus</h3>
+<h2 id="prepare-corpus">Prepare a Corpus</h2>
 <ul>
 <li><a target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/de/treetagger/">Creator for German corpora using TreeTagger</a></li>
 <li><a  target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/en/treetagger/">Creator for English corpora using TreeTagger</a></li>
@@ -116,7 +182,7 @@ Open the creator that leads to an overview page. It shows the list of available 
 <p>
   When ready, a link to the NLP web-application appears. Open  it and follow the instructions to select the vocabulary and choose the number of topics. When the configuration of the topic model is submitted, go back to the overview page of the creator and wait and update until the topic model is readily computed.
 </p>
-<h3 id="create-topic-model">Create a Topic-Model</h3>
+<h2 id="create-topic-model">Create a Topic-Model</h2>
 <ul>
 <li><a target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/de/treetagger/">Creator for German corpora using TreeTagger</a></li>
 <li><a  target="_blank" rel="noopener noreferrer" href="http://localhost:8001/creator/en/treetagger/">Creator for English corpora using TreeTagger</a></li>

@@ -45,6 +45,8 @@ cd /topicexplorer/apache-tomcat-6.0.53
 cp -R webapp_basics/* webapps/
 ./bin/startup.sh
 
+cd /topicexplorer/jobson-server
+jobson serve config.yml &
 
 cd /topicexplorer
 

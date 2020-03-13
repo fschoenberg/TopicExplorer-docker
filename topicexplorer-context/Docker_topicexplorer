@@ -1,10 +1,11 @@
 FROM alpine/git AS git-repos
 WORKDIR /repos
-RUN git    clone https://github.com/hinneburg/TopicExplorer.git
+RUN git clone https://github.com/hinneburg/TopicExplorer.git
 RUN git clone https://github.com/hinneburg/CommandManager.git && \
     cd CommandManager && git checkout v1.0 && cd ../
 RUN git clone https://github.com/hinneburg/lucene-analyzer-treetagger.git &&\
     pwd && ls -la
+RUN git clone https://github.com/hinneburg/TopicExplorer-explainer.git
 
 FROM maven:3-jdk-7-alpine AS maven
 COPY --from=git-repos /repos /usr/src/
@@ -22,6 +23,11 @@ COPY --from=git-repos /repos/TopicExplorer/creator-server/frontend /code
 RUN cd /code \
     && elm-make --yes --warn --output index.html src/CreatorConfig.elm
 
+FROM codesimple/elm:0.19 AS elm19
+COPY --from=git-repos /repos/TopicExplorer-explainer /code
+RUN cd /code \
+        && elm make  --output=elm-te.js src/Main.elm
+
 FROM haskell:7.10 AS haskell
 WORKDIR /creator-server
 RUN cabal update
@@ -29,15 +35,24 @@ COPY --from=git-repos  /repos/TopicExplorer/creator-server/ /creator-server/
 RUN cd /creator-server \
     && cabal install --force-reinstalls common/ creator/
 
-
-FROM r-base AS topicexplorer
+FROM r-base:3.5.3 AS topicexplorer
 RUN apt-get  update \
-    && apt-get install -y --no-install-recommends default-jre
+    && apt-get install -y --no-install-recommends \
+          default-jre \
+          mecab mecab-ipadic mecab-jumandic-utf8 \
+          mecab-ipadic-utf8 \
+          libmecab-jni \
+          wget \
+          mariadb-client \
+          netbase \
+          nginx \
+          curl \
+          poppler-utils \
+    && mecab -v
+
 RUN /bin/bash -c "mkdir -p /topicexplorer/{distribution,tomcat,html/creator}"
 COPY --from=maven /usr/src/TopicExplorer/distribution/target/distribution-1.4-SNAPSHOT-preprocessing/ /topicexplorer/distribution/
-RUN apt-get  update \
-    && apt-get install -y --no-install-recommends wget \
-    && cd /topicexplorer\
+RUN cd /topicexplorer \
     && wget https://archive.apache.org/dist/tomcat/tomcat-6/v6.0.53/bin/apache-tomcat-6.0.53.tar.gz \
     && tar -zxf apache-tomcat-6.0.53.tar.gz \
     && rm apache-tomcat-6.0.53.tar.gz
@@ -47,13 +62,10 @@ COPY --from=maven /usr/src/TopicExplorer/webapp-preprocessing/target/webapp-prep
 
 COPY --from=elm /code/index.html /topicexplorer/html/creator/
 COPY --from=haskell /creator-server/creator/dist/build/creator-server /topicexplorer/
-RUN apt-get  update \
-    && apt-get install -y --no-install-recommends mecab mecab-ipadic mecab-jumandic-utf8 \
-    && mecab -v
 RUN mkdir -p /topicexplorer/treetagger \
     && cd /topicexplorer/treetagger \
     && wget \
- http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/data/tree-tagger-linux-3.2.1.tar.gz \
+ http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/data/tree-tagger-linux-3.2.2.tar.gz \
  http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/data/tagger-scripts.tar.gz \
  http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/data/install-tagger.sh \
  http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/data/english.par.gz \
@@ -70,8 +82,6 @@ RUN apt-get  update
 RUN apt-get install -y --no-install-recommends mariadb-client netbase
 RUN apt-get install -y --no-install-recommends nginx curl=7.65.3-1
 RUN apt-get install -y --no-install-recommends libmecab-jni mecab-ipadic-utf8
-
-
 RUN mkdir /topicexplorer/install
 COPY ./install   /topicexplorer/install
 COPY ./topicexplorer.conf  /etc/nginx/sites-enabled/.
@@ -81,13 +91,11 @@ ARG TE_VERSION
 RUN  cd  /topicexplorer/install \
      && ./install_te_production_directories.sh /topicexplorer/distribution
 
-
 # Save the basic web apps in another folder to copy them back into fresh volumes
 RUN mkdir -p /topicexplorer/apache-tomcat-6.0.53/webapp_basics \
     && cp -R /topicexplorer/apache-tomcat-6.0.53/webapps/* /topicexplorer/apache-tomcat-6.0.53/webapp_basics/.
 COPY ./tomcat6/conf/ /topicexplorer/apache-tomcat-6.0.53/conf/
 COPY ./tomcat6/bin/ /topicexplorer/apache-tomcat-6.0.53/bin/
-
 
 RUN mkdir /topicexplorer/script
 COPY ./script /topicexplorer/script
@@ -102,10 +110,27 @@ COPY  ./te_config_template_jp_mecab/ /topicexplorer/te-production/helper/te_conf
 COPY  ./te_config_template_de_treetagger/ /topicexplorer/te-production/helper/te_config_template_de_treetagger/
 COPY  ./te_config_template_en_treetagger/ /topicexplorer/te-production/helper/te_config_template_en_treetagger/
 
-COPY ./startup.sh /topicexplorer/
-
 RUN chmod 755 /topicexplorer/install/create_tedb.sh
 
 COPY ./start-topicexplorer-workflow.html /topicexplorer/html/index.html
+
+RUN wget https://github.com/adamkewley/jobson/releases/download/1.0.7/jobson_1.0.7_all.deb
+RUN dpkg -i jobson_1.0.7_all.deb  # contains dependencies on (e.g.) java
+RUN apt-get -f install
+
+RUN mkdir -p /topicexplorer/html/jobson
+RUN cp /usr/share/jobson/ui/html/* /topicexplorer/html/jobson/.
+
+RUN mkdir -p /topicexplorer/jobson-server
+RUN cd /topicexplorer/jobson-server && jobson new
+
+RUN apt-get  update && apt-get install -y --no-install-recommends gawk
+
+COPY ./jobson-server/ /topicexplorer/jobson-server/
+COPY ./jobson-server/specs/pdf-to-text/subdirs.sh /topicexplorer/jobson-server/specs/import/
+
+COPY ./startup.sh /topicexplorer/
+
+COPY --from=elm19 /code/*.* /topicexplorer/html/explainer/
 
 CMD /bin/bash -c "service nginx start && cd /topicexplorer && chmod 755 startup.sh && ./startup.sh"
