@@ -6,23 +6,16 @@ x-DEFAULT-ENVIRONMENT:
 services:
   topicexplorer:
     image: hinneburg/topicexplorer-docker:1.1.2
-    build:
-      dockerfile: Docker_topicexplorer
-      context: ./topicexplorer-context
-      args:
-        - *te-base-dir-default
-        - *te-version-default
-
     volumes:
-      - "./volumes/topicexplorer_te_production_helper_tmp:/topicexplorer/te-production/helper/tmp"
-      - "./volumes/topicexplorer_te_production_helper_config:/topicexplorer/te-production/config"
-      - "./volumes/topicexplorer_te_production_projects:/topicexplorer/te-production/project"
-      - "./volumes/topicexplorer_webapps:/topicexplorer/apache-tomcat-6.0.53/webapps"
-      - "./te_mysql_password:/topicexplorer/te_mysql_password"
-      - "./volumes/jobson-server-jobs:/topicexplorer/jobson-server/jobs"
-      - "./volumes/jobson-server-wds:/topicexplorer/jobson-server/wds"
-      - "./volumes/input-corpora/text:/topicexplorer/input-corpora/text"
-      - "./volumes/input-corpora/pdf:/topicexplorer/input-corpora/pdf"
+      - ./volumes/topicexplorer_te_production_helper_tmp:/topicexplorer/te-production/helper/tmp
+      - ./volumes/topicexplorer_te_production_helper_config:/topicexplorer/te-production/config
+      - ./volumes/topicexplorer_te_production_projects:/topicexplorer/te-production/project
+      - ./volumes/topicexplorer_webapps:/topicexplorer/apache-tomcat-6.0.53/webapps
+      - ./te_mysql_password:/topicexplorer/te_mysql_password
+      - ./volumes/jobson-server-jobs:/topicexplorer/jobson-server/jobs
+      - ./volumes/jobson-server-wds:/topicexplorer/jobson-server/wds
+      - ./volumes/input-corpora/text:/topicexplorer/input-corpora/text
+      - ./volumes/input-corpora/pdf:/topicexplorer/input-corpora/pdf
     depends_on:
       - topicexplorer-db
       - adminer
@@ -39,9 +32,9 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD_FILE=/te_mysql_config/te_mysql_password
     volumes:
-     - "./volumes/mariadb-data:/var/lib/mysql"
-     - "./volumes/mariadb-config:/etc/mysql/conf.d"
-     - "./te_mysql_password:/te_mysql_config/te_mysql_password"
+     - ./volumes/mariadb-data:/var/lib/mysql
+     - ./volumes/mariadb-config:/etc/mysql/conf.d
+     - ./te_mysql_password:/te_mysql_config/te_mysql_password
     ports:
       - 3306
 

@@ -1,5 +1,13 @@
 version: '3.4'
+
+volumes:
+  te-webapp-volume:
+    driver: local
+
 services:
+  topicexplorer:
+    volumes:
+      - te-webapp-volume:/topicexplorer/apache-tomcat-6.0.53/webapps
   topicexplorer-db:
     volumes:
-     - "./volumes/mariadb-windows-config:/etc/mysql/conf.d"
+     - ./volumes/mariadb-windows-config:/etc/mysql/conf.d
