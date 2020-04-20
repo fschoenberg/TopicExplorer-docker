@@ -1,23 +1,27 @@
-name: Import folder with text files
-
-description: >
-
-  A folder with text files is imported as corpus into a TopicExplorer database.
-
-
+name: Import folder with text or tei-xml files
+description: A folder with text or tei-xml files is imported as corpus into a TopicExplorer database.
 expectedInputs:
-
 - id: folder
   type: string
   name: Folder with corpus
   description: Folder with text files # Optional
   default: input
-
+- id: TextOrTei
+  type: select
+  name: Import Text or Tei-XML
+  description: Specify whether the files to be imported are text files or Tei-XML files from grobid
+  options:
+  - id: text-files
+    name: import text files in the input folder
+    description: The files in input folder are text files.
+  - id: tei-xml-files
+    name: import Tei-XML files in the input folder
+    description: The files in input folder are Tei-XML files.
+  default: text-files
 - id: searchSubdirs
   type: select
   name: Handling of sub dirs
   description: Specify if sub folders should be searched for text files
-
   options:
   - id: do-not-search-all-subdirs-and-flatten-path
     name: import text files in the input folder and ignore sub-folders
@@ -25,15 +29,11 @@ expectedInputs:
   - id: do-search-all-subdirs-and-flatten-path
     name: import text files in the input folder and all sub-folders
     description: The text files in input folder and all sub-folders are imported. The paths to the sub-folders are flattened and prefixed to the names of the text files.
-
   default: do-not-search-all-subdirs-and-flatten-path
-
-
 - id: topicexplorerDatabase
   type: select
   name: TopicExplorer Database
   description: Select TopicExplorer Database with the right language # Optional
-
   options:
   - id: TE_MANAGEMENT_DE_TREETAGGER
     name: TreeTagger and German (TE_MANAGEMENT_DE_TREETAGGER)
@@ -44,13 +44,8 @@ expectedInputs:
   - id: TE_MANAGEMENT_JP_MECAB
     name: MeCab and Japanese (TE_MANAGEMENT_JP_MECAB)
     description: TopicExplorer Database with MeCab and Japanese
-
-
   default: TE_MANAGEMENT_DE_TREETAGGER # Optional
-
-
 execution:
-
   dependencies:
   - source: import-folder.sh
     target: import-folder.sh
@@ -60,14 +55,13 @@ execution:
     target: log4j.local.properties
   - source: subdirs.sh
     target: subdirs.sh
-
   application: bash
-
   arguments:  # Optional
   - import-folder.sh
   - ${inputs.folder}
   - ${inputs.topicexplorerDatabase}
   - ${inputs.searchSubdirs}
+  - ${inputs.TextOrTei}
 
 #  - ${toJSON(inputs)}
 #  - a non-special string arg

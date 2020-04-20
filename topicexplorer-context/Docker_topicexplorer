@@ -3,9 +3,20 @@ WORKDIR /repos
 RUN git clone https://github.com/hinneburg/TopicExplorer.git
 RUN git clone https://github.com/hinneburg/CommandManager.git && \
     cd CommandManager && git checkout v1.0 && cd ../
-RUN git clone https://github.com/hinneburg/lucene-analyzer-treetagger.git &&\
-    pwd && ls -la
+RUN git clone https://github.com/hinneburg/lucene-analyzer-treetagger.git
+
+FROM alpine/git AS git-repo-TopicExplorer-explainer
+WORKDIR /repos
 RUN git clone https://github.com/hinneburg/TopicExplorer-explainer.git
+
+FROM alpine/git AS git-repo-grobid-client-java
+WORKDIR /repos
+RUN git clone https://github.com/kermitt2/grobid-client-java.git
+
+FROM maven:3-jdk-8-alpine AS maven-grobid-client-java
+COPY --from=git-repo-grobid-client-java /repos /usr/src/
+RUN cd /usr/src/grobid-client-java \
+    && mvn install
 
 FROM maven:3-jdk-7-alpine AS maven
 COPY --from=git-repos /repos /usr/src/
@@ -24,7 +35,7 @@ RUN cd /code \
     && elm-make --yes --warn --output index.html src/CreatorConfig.elm
 
 FROM codesimple/elm:0.19 AS elm19
-COPY --from=git-repos /repos/TopicExplorer-explainer /code
+COPY --from=git-repo-TopicExplorer-explainer /repos/TopicExplorer-explainer /code
 RUN cd /code \
         && elm make  --output=elm-te.js src/Main.elm
 
@@ -39,16 +50,16 @@ FROM r-base:3.5.3 AS topicexplorer
 RUN apt-get  update \
     && apt-get install -y --no-install-recommends \
           default-jre \
-          mecab mecab-ipadic mecab-jumandic-utf8 \
-          mecab-ipadic-utf8 \
+          mecab mecab-ipadic mecab-jumandic-utf8 mecab-ipadic-utf8 \
           libmecab-jni \
           wget \
           mariadb-client \
           netbase \
           nginx \
-          curl \
+          curl=7.68.0-1 \
           poppler-utils \
-    && mecab -v
+          mariadb-client \
+          gawk
 
 RUN /bin/bash -c "mkdir -p /topicexplorer/{distribution,tomcat,html/creator}"
 COPY --from=maven /usr/src/TopicExplorer/distribution/target/distribution-1.4-SNAPSHOT-preprocessing/ /topicexplorer/distribution/
@@ -71,17 +82,12 @@ RUN mkdir -p /topicexplorer/treetagger \
  http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/data/english.par.gz \
  http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/data/german.par.gz \
     && sh install-tagger.sh \
-    && echo 'Hello world!' | cmd/tree-tagger-english
-RUN  cd /topicexplorer/treetagger \
-     && mkdir models \
-     && cd models \
-     && ln ../lib/german.par \
-     && ln ../lib/english.par
+    && cd /topicexplorer/treetagger \
+    && mkdir models \
+    && cd models \
+    && ln ../lib/german.par \
+    && ln ../lib/english.par
 
-RUN apt-get  update
-RUN apt-get install -y --no-install-recommends mariadb-client netbase
-RUN apt-get install -y --no-install-recommends nginx curl=7.68.0-1
-RUN apt-get install -y --no-install-recommends libmecab-jni mecab-ipadic-utf8
 RUN mkdir /topicexplorer/install
 COPY ./install   /topicexplorer/install
 COPY ./topicexplorer.conf  /etc/nginx/sites-enabled/.
@@ -102,9 +108,10 @@ COPY ./script /topicexplorer/script
 
 RUN rm /etc/nginx/sites-enabled/default
 
-RUN mkdir -p /topicexplorer/te-production/helper/te_config_template_jp_mecab
-RUN mkdir -p /topicexplorer/te-production/helper/te_config_template_de_treetagger
-RUN mkdir -p /topicexplorer/te-production/helper/te_config_template_en_treetagger
+RUN mkdir -p \
+     /topicexplorer/te-production/helper/te_config_template_jp_mecab \
+     /topicexplorer/te-production/helper/te_config_template_de_treetagger \
+     /topicexplorer/te-production/helper/te_config_template_en_treetagger
 
 COPY  ./te_config_template_jp_mecab/ /topicexplorer/te-production/helper/te_config_template_jp_mecab/
 COPY  ./te_config_template_de_treetagger/ /topicexplorer/te-production/helper/te_config_template_de_treetagger/
@@ -114,17 +121,15 @@ RUN chmod 755 /topicexplorer/install/create_tedb.sh
 
 COPY ./start-topicexplorer-workflow.html /topicexplorer/html/index.html
 
-RUN wget https://github.com/adamkewley/jobson/releases/download/1.0.7/jobson_1.0.7_all.deb
-RUN dpkg -i jobson_1.0.7_all.deb  # contains dependencies on (e.g.) java
-RUN apt-get -f install
-
-RUN mkdir -p /topicexplorer/html/jobson
-RUN cp /usr/share/jobson/ui/html/* /topicexplorer/html/jobson/.
-
-RUN mkdir -p /topicexplorer/jobson-server
-RUN cd /topicexplorer/jobson-server && jobson new
-
-RUN apt-get  update && apt-get install -y --no-install-recommends gawk
+RUN wget https://github.com/adamkewley/jobson/releases/download/1.0.7/jobson_1.0.7_all.deb \
+  && dpkg -i jobson_1.0.7_all.deb \
+  && apt-get -f install \
+  && rm jobson_1.0.7_all.deb \
+  && mkdir -p /topicexplorer/html/jobson \
+  && cp /usr/share/jobson/ui/html/* /topicexplorer/html/jobson/. \
+  && mkdir -p /topicexplorer/jobson-server \
+  && cd /topicexplorer/jobson-server \
+  && jobson new
 
 COPY ./jobson-server/ /topicexplorer/jobson-server/
 COPY ./jobson-server/specs/pdf-to-text/subdirs.sh /topicexplorer/jobson-server/specs/import/
@@ -132,5 +137,8 @@ COPY ./jobson-server/specs/pdf-to-text/subdirs.sh /topicexplorer/jobson-server/s
 COPY ./startup.sh /topicexplorer/
 
 COPY --from=elm19 /code/*.* /topicexplorer/html/explainer/
+
+COPY --from=maven-grobid-client-java /usr/src/grobid-client-java/target/org.grobid.client-0.5.4-SNAPSHOT.one-jar.jar /topicexplorer/grobid-client-java/
+
 
 CMD /bin/bash -c "service nginx start && cd /topicexplorer && chmod 755 startup.sh && ./startup.sh"

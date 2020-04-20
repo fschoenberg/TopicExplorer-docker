@@ -1,0 +1,68 @@
+name: Extract TEI-XML from PDF
+
+description: >
+
+  A folder of pdf documents that are scientific articles is converted to TEI-XML documents.
+
+
+expectedInputs:
+- id: folder
+  type: string
+  name: Folder with corpus
+  description: Folder with PDF files # Optional
+  default: input
+- id: numberOfConcurrentRequests
+  type: int
+  name: Number of concurrently processed pdf files
+  description: Number of concurrently processed pdf files. Recommended is 1 or 2 for notebooks and 10 to 20 for servers depending on available cores in the CPU.
+  default: 1
+- id: grobidService
+  type: select
+  name: GROBID Service
+  description: Select which GROBID Service will be used # Optional
+  options:
+  - id: processFulltextDocument
+    name: processFulltextDocument
+    description: Process all contents of the Documents, requires up to 4 GB main memory
+  - id: processHeaderDocument
+    name: processHeaderDocument
+    description: Process the Header of the Documents, requires up to 2 GB main memory
+  - id: processReferences
+    name: processReferences
+    description: Process the References of the Documents, requires up to 3 GB main memory
+  default: processFulltextDocument # Optional
+execution:
+  dependencies:
+  - source: run-grobid.sh
+    target: run-grobid.sh
+  - source: grobid-client.properties
+    target: grobid-client.properties
+  application: bash
+  arguments:  # Optional
+  - run-grobid.sh
+  - ${inputs.folder}
+  - ${inputs.grobidService}
+  - ${inputs.numberOfConcurrentRequests}
+
+#  - ${toJSON(inputs)}
+#  - a non-special string arg
+#  - ${toFile(toJSON(request))}
+#  - ${inputs["string-example"]}
+#  - ${toJSON(inputs["sql-example"])}
+#  - A combination of text and templates ${inputs["string-example"]}
+#
+#  dependencies:
+#    source: some-file-in-spec-dir
+#    target: some-path-in-working-dir
+
+
+# expectedOutputs:
+#
+# - id: id-as-downloaded-by-client.zip
+#   path: path-written-by-runtime
+#   mimeType: application/octet-stream      # optional (autodetected otherwise)
+#   name: Name of the output                # optional
+#   description: Description of the output  # optional
+#
+# - id: ${request.id}_results.zip
+#   path: output.zip
