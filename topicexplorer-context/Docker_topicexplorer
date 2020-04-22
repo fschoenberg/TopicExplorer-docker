@@ -131,6 +131,7 @@ RUN wget https://github.com/adamkewley/jobson/releases/download/1.0.7/jobson_1.0
   && cd /topicexplorer/jobson-server \
   && jobson new
 
+COPY ./jobson-ui-html/config.json  /topicexplorer/html/jobson/
 COPY ./jobson-server/ /topicexplorer/jobson-server/
 COPY ./jobson-server/specs/pdf-to-text/subdirs.sh /topicexplorer/jobson-server/specs/import/
 
