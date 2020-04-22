@@ -57,7 +57,7 @@ export TE_TMP="$TE_BASE_DIR"/helper/tmp_de_treetagger
 ./creator-server \
      --port 7202 \
      --script-dir=/topicexplorer/script \
-     --app-server=/webapp/ &
+     --app-server=../webapp/ &
 
 # englisch
 export TE_MANAGEMENT_DB_NAME=TE_MANAGEMENT_EN_TREETAGGER
@@ -66,7 +66,7 @@ export TE_TMP="$TE_BASE_DIR"/helper/tmp_en_treetagger
 ./creator-server \
      --port 7201 \
      --script-dir=/topicexplorer/script \
-     --app-server=/webapp/ &
+     --app-server=../webapp/ &
 
 # japanese
 export TE_MANAGEMENT_DB_NAME=TE_MANAGEMENT_JP_MECAB
@@ -75,5 +75,5 @@ export TE_TMP="$TE_BASE_DIR"/helper/tmp_jp_mecab
 ./creator-server \
      --port 7200 \
      --script-dir=/topicexplorer/script \
-     --app-server=/webapp/ #\
+     --app-server=../webapp/ #\
 #      >>creator-nohup.out 2>creator-nohup.err
