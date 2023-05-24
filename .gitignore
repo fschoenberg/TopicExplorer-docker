@@ -1,4 +1,3 @@
-/te_mysql_password
 /*.sql
 /volumes/mariadb-data/*
 !/volumes/mariadb-data/.keep

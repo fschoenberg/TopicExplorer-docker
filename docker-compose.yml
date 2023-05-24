@@ -16,6 +16,7 @@ services:
       - ./volumes/jobson-server-wds:/topicexplorer/jobson-server/wds
       - ./volumes/input-corpora/text:/topicexplorer/input-corpora/text
       - ./volumes/input-corpora/pdf:/topicexplorer/input-corpora/pdf
+      - ./start-topicexplorer-workflow.html:/topicexplorer/html/index.html
     depends_on:
       - topicexplorer-db
       - adminer
@@ -26,7 +27,7 @@ services:
       - 8001:80
 
   topicexplorer-db:
-    image: mariadb:10.0
+    image: mariadb:10.11
     restart: always
     environment:
       - MYSQL_ROOT_PASSWORD_FILE=/te_mysql_config/te_mysql_password
@@ -38,9 +39,31 @@ services:
       - 3306
 
   adminer:
-    image: adminer:4.7.6-standalone
+    image: adminer:4.8.1-standalone
     restart: always
     environment:
     - ADMINER_PLUGINS=frames
     ports:
       - 8002:8080
+
+  nginx:
+    image: nginx:1.24.0
+    restart: always
+    volumes:
+     - ./volumes/nginx:/etc/nginx/conf.d
+    depends_on:
+      - topicexplorer
+      - adminer
+    ports:
+      - 8080:80
+
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    restart: always
+    depends_on:
+      - topicexplorer-db
+    environment:
+    - PMA_HOST=topicexplorer-db   
+    - UPLOAD_LIMIT=250M
+    ports:
+      - 8003:80
