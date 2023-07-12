@@ -75,7 +75,7 @@ cd "$TE_TMP"/
 ./bin/run-jobmanagement.sh
 
 #get TE_IDENTIFIER
-TE_IDENTIFIER=$(grep 'DB=' resources/database.local.properties |sed 's/DB=//g')
+TE_IDENTIFIER=$(grep 'TeIdentifier=' database.local.properties |sed 's/TeIdentifier=//g')
 
 #check if TE_IDENTIFIER is valid
 if [[ ! "$TE_IDENTIFIER" =~ ^[A-Z][_0-9A-Z]{0,44}$ ]]; then
