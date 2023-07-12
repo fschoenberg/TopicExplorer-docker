@@ -69,6 +69,7 @@ sed -i -- "s/<TE_MANAGEMENT_DB_NAME>/$(echo $TE_MANAGEMENT_DB_NAME | sed -e 's/\
 sed -i -- "s/<TE_MANAGEMENT_DB_USER>/$(echo $TE_MANAGEMENT_DB_USER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  "$TE_TMP"/resources/*
 sed -i -- "s/<TE_MANAGEMENT_DB_PASSWORD>/$(echo $TE_MANAGEMENT_DB_PASSWORD | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  "$TE_TMP"/resources/*
 sed -i -- "s/<TE_IDENTIFIER>/$(echo $TE_IDENTIFIER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  "$TE_TMP"/resources/*
+sed -i -- "s/<TE_IDENTIFIER_DB_PREFIX>/$(echo $TE_IDENTIFIER_DB_PREFIX | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  "$TE_TMP"/resources/*
 
 #run computation of topicexplorer
 cd "$TE_TMP"/
