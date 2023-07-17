@@ -71,12 +71,16 @@ sed -i -- "s/<TE_MANAGEMENT_DB_PASSWORD>/$(echo $TE_MANAGEMENT_DB_PASSWORD | sed
 sed -i -- "s/<TE_IDENTIFIER>/$(echo $TE_IDENTIFIER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  "$TE_TMP"/resources/*
 sed -i -- "s/<TE_IDENTIFIER_DB_PREFIX>/$(echo $TE_IDENTIFIER_DB_PREFIX | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"  "$TE_TMP"/resources/*
 
+
+
 #run computation of topicexplorer
 cd "$TE_TMP"/
+
 ./bin/run-jobmanagement.sh
 
+
 #get TE_IDENTIFIER
-TE_IDENTIFIER=$(grep 'TeIdentifier=' database.local.properties |sed 's/TeIdentifier=//g')
+TE_IDENTIFIER=$(grep 'TeIdentifier=' resources/database.local.properties |sed 's/TeIdentifier=//g')
 
 #check if TE_IDENTIFIER is valid
 if [[ ! "$TE_IDENTIFIER" =~ ^[A-Z][_0-9A-Z]{0,44}$ ]]; then
@@ -101,3 +105,4 @@ cp "$TE_TMP"/resources/*.* "$TE_BASE_DIR"/project/"$TE_IDENTIFIER"/resources/.
 cp "$TE_TMP"/data/*.* "$TE_BASE_DIR"/project/"$TE_IDENTIFIER"/data/.
 #append the log file from helper/tmp to the log in project/TE_IDENTIFIER
 cat "$TE_TMP"/logs/TMP.log >>"$TE_BASE_DIR"/project/"$TE_IDENTIFIER"/logs/"$TE_IDENTIFIER".log
+

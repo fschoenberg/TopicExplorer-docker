@@ -1,6 +1,8 @@
 FROM alpine/git AS git-repos
+#uncomment for local repo
+#ADD TopicExplorer /repos/TopicExplorer
 WORKDIR /repos
-RUN git clone https://github.com/hinneburg/TopicExplorer.git
+RUN git clone https://github.com/fschoenberg/TopicExplorer.git
 RUN git clone https://github.com/hinneburg/CommandManager.git && \
     cd CommandManager && git checkout v1.0 && cd ../
 RUN git clone https://github.com/hinneburg/lucene-analyzer-treetagger.git
@@ -39,14 +41,14 @@ COPY --from=git-repo-TopicExplorer-explainer /repos/TopicExplorer-explainer /cod
 RUN cd /code \
         && elm make  --output=elm-te.js src/Main.elm
 
-FROM haskell:7.10 AS haskell
+FROM haskell:8.2.2 AS haskell
 WORKDIR /creator-server
 RUN cabal update
 COPY --from=git-repos  /repos/TopicExplorer/creator-server/ /creator-server/
 RUN cd /creator-server \
     && cabal install --force-reinstalls common/ creator/
 
-FROM r-base:3.5.3 AS topicexplorer
+FROM r-base:4.2.3 AS topicexplorer
 RUN apt-get  update \
     && apt-get install -y --no-install-recommends \
           default-jre \
@@ -56,7 +58,7 @@ RUN apt-get  update \
           mariadb-client \
           netbase \
           nginx \
-          curl=7.68.0-1 \
+          curl \
           poppler-utils \
           mariadb-client \
           gawk
