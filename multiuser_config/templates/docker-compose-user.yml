@@ -1,0 +1,28 @@
+
+  topicexplorer-<USER>:
+    #image: hinneburg/topicexplorer-docker:1.1.4
+    image: local/topicexplorer:1.1.4l
+    #build:
+    #  context: te
+    #  dockerfile: Docker_te_multiuser
+    init: true 
+    volumes:
+      - <TE_VOLUME_PATH>/<USER>/topicexplorer_te_production_helper_tmp:/topicexplorer/te-production/helper/tmp
+      - <TE_VOLUME_PATH>/<USER>/topicexplorer_te_production_helper_config:/topicexplorer/te-production/config
+      - <TE_VOLUME_PATH>/<USER>/topicexplorer_te_production_projects:/topicexplorer/te-production/project
+      - <TE_VOLUME_PATH>/<USER>/topicexplorer_webapps:/topicexplorer/apache-tomcat-6.0.53/webapps
+      - <TE_VOLUME_PATH>/<USER>/jobson-server-jobs:/topicexplorer/jobson-server/jobs
+      - <TE_VOLUME_PATH>/<USER>/jobson-server-wds:/topicexplorer/jobson-server/wds
+      - <TE_VOLUME_PATH>/<USER>/input-corpora/text:/topicexplorer/input-corpora/text
+      - <TE_VOLUME_PATH>/<USER>/input-corpora/pdf:/topicexplorer/input-corpora/pdf
+      - <TE_VOLUME_PATH>/<USER>/startup.sh:/topicexplorer/startup.sh
+      - <TE_VOLUME_PATH>/<USER>/start-topicexplorer-workflow.html:/topicexplorer/html/index.html
+    depends_on:
+      - topicexplorer-db
+      - adminer
+    environment:
+        - *te-base-dir-default
+        - *te-version-default
+    ports:
+      - 80
+

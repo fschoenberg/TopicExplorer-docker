@@ -1,0 +1,9 @@
+USERS=("user1" "user2" "user3")
+PASSWORDS=("pw1" "pw2" "pw3")
+DB_ROOT_PW="root_pw"
+TE_VOLUME_PATH=/te_volumes/te
+DB_VOLUME_PATH=/te_volumes/db
+NGINX_VOLUME_PATH=/te_volumes/nginx
+DB_RAMSIZE=4GB
+SERVERPORT=80
+

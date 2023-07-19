@@ -1,0 +1,46 @@
+  topicexplorer-db:
+    #image: mariadb:10.11 => added multiuser_configuration via Dockerfile
+    build:
+      context: db
+      dockerfile: Docker_mariadb   
+    init: true 
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=<DB_ROOT_PW>
+    volumes:
+     - <DB_VOLUME_PATH>/mariadb-data:/var/lib/mysql
+     - <DB_VOLUME_PATH>/logs:/var/log/mysql
+    ports:
+      - 3306
+
+  adminer:
+    image: adminer:4.8.1-standalone
+    restart: always
+    depends_on:
+      - topicexplorer-db
+    environment:
+    - ADMINER_PLUGINS=frames
+    ports:
+      - 8080
+
+  nginx:
+    image: nginx:1.24.0
+    restart: always
+    volumes:
+     - <NGINX_VOLUME_PATH>/:/etc/nginx/conf.d
+    depends_on:
+      <PROXY_DEP>
+      - adminer
+    ports:
+      - <SERVERPORT>:80
+
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    restart: always
+    depends_on:
+      - topicexplorer-db
+    environment:
+    - PMA_HOST=topicexplorer-db   
+    - UPLOAD_LIMIT=250M
+    ports:
+      - 8003:80

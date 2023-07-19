@@ -1,0 +1,7 @@
+version: '3.4'
+x-DEFAULT-ENVIRONMENT:
+  - &te-base-dir-default TE_BASE_DIR=/topicexplorer/te-production
+  - &te-version-default TE_VERSION=te-1.4-SNAPSHOT
+
+#docker compose build topicexplorer
+services:

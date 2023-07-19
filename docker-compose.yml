@@ -3,15 +3,19 @@ x-DEFAULT-ENVIRONMENT:
   - &te-base-dir-default TE_BASE_DIR=/topicexplorer/te-production
   - &te-version-default TE_VERSION=te-1.4-SNAPSHOT
 
+#docker compose build topicexplorer
 services:
-  topicexplorer:
-    image: hinneburg/topicexplorer-docker:1.1.4
+  topicexplorer-user:
+    #image: hinneburg/topicexplorer-docker:1.1.4
+    build:
+      context: multiuser_config/te
+      dockerfile: Docker_te_multiuser
+    init: true 
     volumes:
       - ./volumes/topicexplorer_te_production_helper_tmp:/topicexplorer/te-production/helper/tmp
       - ./volumes/topicexplorer_te_production_helper_config:/topicexplorer/te-production/config
       - ./volumes/topicexplorer_te_production_projects:/topicexplorer/te-production/project
       - ./volumes/topicexplorer_webapps:/topicexplorer/apache-tomcat-6.0.53/webapps
-      - ./te_mysql_password:/topicexplorer/te_mysql_password
       - ./volumes/jobson-server-jobs:/topicexplorer/jobson-server/jobs
       - ./volumes/jobson-server-wds:/topicexplorer/jobson-server/wds
       - ./volumes/input-corpora/text:/topicexplorer/input-corpora/text
@@ -27,20 +31,25 @@ services:
       - 8001:80
 
   topicexplorer-db:
-    image: mariadb:10.11
+    #image: mariadb:10.11 => added multiuser_configuration via Dockerfile
+    build:
+      context: multiuser_config/db
+      dockerfile: Docker_mariadb   
+    init: true 
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD_FILE=/te_mysql_config/te_mysql_password
+      - MYSQL_ROOT_PASSWORD=root_pw
     volumes:
-     - ./volumes/mariadb-data:/var/lib/mysql
-     - ./volumes/mariadb-config:/etc/mysql/conf.d
-     - ./te_mysql_password:/te_mysql_config/te_mysql_password
+     - ./volumes-db/mariadb-data:/var/lib/mysql
+     - ./volumes-db/logs:/var/log/mysql
     ports:
       - 3306
 
   adminer:
     image: adminer:4.8.1-standalone
     restart: always
+    depends_on:
+      - topicexplorer-db
     environment:
     - ADMINER_PLUGINS=frames
     ports:
@@ -50,9 +59,9 @@ services:
     image: nginx:1.24.0
     restart: always
     volumes:
-     - ./volumes/nginx:/etc/nginx/conf.d
+     - ./volumes-nginx/:/etc/nginx/conf.d
     depends_on:
-      - topicexplorer
+      - topicexplorer-user
       - adminer
     ports:
       - 8080:80

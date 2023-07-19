@@ -11,3 +11,4 @@ services:
       args:
         - *te-base-dir-default
         - *te-version-default
+    image: local/topicexplorer:1.1.4l
