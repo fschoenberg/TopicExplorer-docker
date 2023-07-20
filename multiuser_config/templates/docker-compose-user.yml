@@ -6,6 +6,7 @@
     #  context: te
     #  dockerfile: Docker_te_multiuser
     init: true 
+    restart: always
     volumes:
       - <TE_VOLUME_PATH>/<USER>/topicexplorer_te_production_helper_tmp:/topicexplorer/te-production/helper/tmp
       - <TE_VOLUME_PATH>/<USER>/topicexplorer_te_production_helper_config:/topicexplorer/te-production/config
