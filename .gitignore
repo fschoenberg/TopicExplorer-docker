@@ -3,3 +3,8 @@
 /volumes-db/*
 /volumes-nginx/*.pw
 /multiuser_config/config.ini
+/multiuser_config/db/config.ini
+/multiuser_config/db/db-config-file.cnf
+/multiuser_config/docker-compose.yml
+/multiuser_config/TODO
+

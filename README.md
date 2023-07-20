@@ -1,44 +1,27 @@
-# TopicExplorer-docker
+# TopicExplorer-docker multiuser build
 
 ## Description
 [TopicExplorer](http://topicexplorer.informatik.uni-halle.de) integrates all services neccessary for topic-modeling into a single web-application.
 TopicExplorer-Docker provides containers for simplified installation of TopicExplorer on a local computer based on docker-compose.
+This version supports multiple user to work on a single database instance. So far it is developed for usage on Linux based servers.
 
 ## Installation
 
 #### Step 1: prerequisites
-Install [docker](https://docs.docker.com/install/) at least version 18.0 and [docker-compose](https://docs.docker.com/compose/install/) at least version 3.4 at your local machine.
-Both software packages are available for Windows, Mac and Linux.
-Many tutorials explain installing docker step by step.
+Install [docker](https://docs.docker.com/install/) at least version 23.0 and [docker-compose](https://docs.docker.com/compose/install/) at least version v2.16.0 at your local machine.
 
-Important note for Windows 10: after install, open docker-settings from the task bar and enable sharing for the drive that contains the TopicExplorer-docker project.
-#### Step 2: download and set password
-Download or clone this repository [green button on github] to your local computer. Navigate to the folder `TopicExplorer-docker`. Rename the file `te_mysql_password.change-me` to `te_mysql_password` and change the password inside it.
+#### Step 2: download and set configuration
+Download or clone this repository [green button on github] to your local computer. Navigate to the folder `TopicExplorer-docker\multiuser_config`. Rename the file `config.ini.change-me` to `config.ini` and configure your system to your needs.
+
+
 #### Step 3: start the web-application
-Start the services of the web-application,
-e.g. local web-server and database,
-by clicking the `start-topicexplorer-windows10.bat` on Windows 10 Professional or `start-topicexplorer-linux.sh` on Linux.
-Allow docker to access  locally created networks through personal firewalls on your machine.
-TopicExplorer can be also manually started from the project folder in a shell with the command:
-```
-docker-compose up --no-build
-```
-For the first time,
-docker pulls the container images,
-which takes a while depending on the speed of your Internet connection and your computer.
-Then the volume directories are initialized and databases are created.
-This steps are skipped on subsequent restarts.
-
-#### Step 4: stop the web-application
-After you finished working with TopicExplorer,
-stop the services of the web-application by clicking the `stop-topicexplorer-windows10.bat` on Windows 10 Professional or `stop-topicexplorer-linux.sh` on Linux.
-Stopping manually is done from project folder in a shell with the command:
-```
-docker-compose down
-```
+Run the file `TopicExplorer-docker\multiuser_config\config.sh` as root. You only have to do this once after changing parameters in your 'config.ini'.
+The TopicExplorer will restart after each reboot automatically. Changig a password is not supportet at the moment.
 
 ## Use TopicExplorer
-When docker-compose is running, open the HTML-file `start-topicexplorer-workflow.html` in your browser.
+Go to the URL `http(s)://%YOUR_SERVER_NAME%/%USERNAME%/`
+You will find there a description of the workflow.
+Additionally you will find a phpMyAdmin instance on Port 8003. 
 The import of data, the NLP preprocessing and the generation of topic models is described for different languages [en, de, jp] and NLP tools [treetagger, mecab].
 
 #### Prepare the corpus and create a topic model
