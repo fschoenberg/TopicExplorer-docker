@@ -22,8 +22,8 @@
       - topicexplorer-db
       - adminer
     environment:
-        - *te-base-dir-default
-        - *te-version-default
+      - *te-base-dir-default
+      - *te-version-default
     ports:
       - 80
 

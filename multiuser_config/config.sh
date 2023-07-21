@@ -12,7 +12,9 @@ fi
 source <(grep = config.ini)
 
 #create volume directories
-mkdir -p "${NGINX_VOLUME_PATH}"
+mkdir -p "${NGINX_VOLUME_PATH}/config"
+mkdir -p "${NGINX_VOLUME_PATH}/pw"
+mkdir -p "${NGINX_VOLUME_PATH}/rules"
 mkdir -p "${TE_VOLUME_PATH}"
 mkdir -p "${DB_VOLUME_PATH}"
 
@@ -30,7 +32,7 @@ do
     PASSWORD=${PASSWORDS[${i}]}
     #create password file
     htpasswd -c -b $USER.pw $USER $PASSWORD
-    mv -f "$USER.pw" "${NGINX_VOLUME_PATH}"
+    mv -f "$USER.pw" "${NGINX_VOLUME_PATH}/pw"
 
     mkdir -p "${TE_VOLUME_PATH}/${USER}"
     #create workflow file    
@@ -67,7 +69,11 @@ mv -f "templates/tmp_docker" "docker-compose.yml"
 
 
 cat "templates/nginx_default_footer.conf" >>"templates/tmp_nginx"
-mv -f "templates/tmp_nginx" "${NGINX_VOLUME_PATH}/default.conf"
+mv -f "templates/tmp_nginx" "${NGINX_VOLUME_PATH}/config/default.conf.template"
+yes | cp -f "templates/nginx-logging.conf.org" "${NGINX_VOLUME_PATH}/config/logging.conf.template"
+yes | cp -f "templates/nginx-modsecurity.conf.org" "${NGINX_VOLUME_PATH}/config/modsecurity.conf.template"
+yes | cp -f "RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf" "${NGINX_VOLUME_PATH}/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf"
+
 
 #start container
 docker compose up

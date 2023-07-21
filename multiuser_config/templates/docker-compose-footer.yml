@@ -8,8 +8,8 @@
     environment:
       - MYSQL_ROOT_PASSWORD=<DB_ROOT_PW>
     volumes:
-     - <DB_VOLUME_PATH>/mariadb-data:/var/lib/mysql
-     - <DB_VOLUME_PATH>/logs:/var/log/mysql
+      - <DB_VOLUME_PATH>/mariadb-data:/var/lib/mysql
+      - <DB_VOLUME_PATH>/logs:/var/log/mysql
     ports:
       - 3306
 
@@ -19,20 +19,25 @@
     depends_on:
       - topicexplorer-db
     environment:
-    - ADMINER_PLUGINS=frames
+      - ADMINER_PLUGINS=frames
     ports:
       - 8080
 
-  nginx:
-    image: nginx:1.24.0
+  waf:
+    image: owasp/modsecurity-crs:nginx-alpine
     restart: always
+    #environment:
+    #  - BACKEND=http://nginx:80
     volumes:
-     - <NGINX_VOLUME_PATH>/:/etc/nginx/conf.d
+      - <NGINX_VOLUME_PATH>/config/:/etc/nginx/templates/conf.d/
+      - <NGINX_VOLUME_PATH>/pw/:/etc/nginx/pw/
+      - <NGINX_VOLUME_PATH>/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
     depends_on:
       <PROXY_DEP>
       - adminer
     ports:
       - <SERVERPORT>:80
+      
 
   phpmyadmin:
     image: phpmyadmin:5.2
@@ -40,7 +45,7 @@
     depends_on:
       - topicexplorer-db
     environment:
-    - PMA_HOST=topicexplorer-db   
-    - UPLOAD_LIMIT=250M
+      - PMA_HOST=topicexplorer-db   
+      - UPLOAD_LIMIT=250M
     ports:
       - 8003:80
