@@ -18,7 +18,7 @@ mkdir -p "${DB_VOLUME_PATH}"
 
 #create db_config file
 cat "templates/db-config-file.cnf" |\
-sed "s/<DB_RAMSIZE>/$(echo $DB_RAMSIZE | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" >"db/db-config-file.cnf"
+sed "s/<DB_RAMSIZE>/$(echo $DB_RAMSIZE | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" > "db/db-config-file.cnf"
 
 yes | cp -f "config.ini" "db/config.ini"
 yes | cp -f "templates/nginx_default_header.conf" "templates/tmp_nginx"
@@ -36,21 +36,21 @@ do
     #create workflow file    
     cat "templates/start-topicexplorer-workflow-template-multiuser.html" |\
     sed "s/<USER>/$(echo $USER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"       |\
-    sed "s/<DB_PREFIX>/$(echo ${USER_CAPS}_ | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" >> "${TE_VOLUME_PATH}/${USER}/start-topicexplorer-workflow.html"
+    sed "s/<DB_PREFIX>/$(echo ${USER_CAPS}_ | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" > "${TE_VOLUME_PATH}/${USER}/start-topicexplorer-workflow.html"
 
     #create startup file   
     cat "templates/startup-template.sh" |\
     sed "s/<USER>/$(echo $USER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"       |\
-    sed "s/<PASSWORD>/$(echo ${PASSWORD} | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" >> "${TE_VOLUME_PATH}/${USER}/startup.sh"
+    sed "s/<PASSWORD>/$(echo ${PASSWORD} | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" > "${TE_VOLUME_PATH}/${USER}/startup.sh"
 
     #create proxy config
     cat "templates/nginx_default_user.conf" |\
-    sed "s/<USER>/$(echo $USER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" >>"templates/tmp_nginx"
+    sed "s/<USER>/$(echo $USER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" >> "templates/tmp_nginx"
     
     #create docker config
     cat "templates/docker-compose-user.yml" |\
     sed "s/<TE_VOLUME_PATH>/$(echo $TE_VOLUME_PATH | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"       |\
-    sed "s/<USER>/$(echo $USER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" >>"templates/tmp_docker"
+    sed "s/<USER>/$(echo $USER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" >> "templates/tmp_docker"
 
 done 
 
