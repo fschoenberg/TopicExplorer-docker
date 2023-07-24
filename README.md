@@ -11,12 +11,12 @@ This version supports multiple user to work on a single database instance. So fa
 Install [docker](https://docs.docker.com/install/) at least version 23.0 and [docker-compose](https://docs.docker.com/compose/install/) at least version v2.16.0 at your local machine.
 
 #### Step 2: download and set configuration
-Download or clone this repository [green button on github] to your local computer. Navigate to the folder `TopicExplorer-docker\multiuser_config`. Rename the file `config.ini.change-me` to `config.ini` and configure your system to your needs.
+Download or clone this repository [green button on github] to your local computer. Navigate to the folder `TopicExplorer-docker\multiuser_config`. Rename the file `config.ini.change-me` to `config.ini` and configure your system to your needs. Character '<' is not allowed inside the password
 
 
 #### Step 3: start the web-application
 Run the file `TopicExplorer-docker\multiuser_config\config.sh` as root. You only have to do this once after changing parameters in your 'config.ini'.
-The TopicExplorer will restart after each reboot automatically. Changig a password is not supportet at the moment.
+The TopicExplorer will restart after each reboot automatically. To change the password simply change the `config.ini` file.
 
 ## Use TopicExplorer
 Go to the URL `http(s)://%YOUR_SERVER_NAME%/%USERNAME%/`

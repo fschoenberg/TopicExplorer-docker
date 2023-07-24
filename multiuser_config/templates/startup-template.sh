@@ -13,6 +13,8 @@ function create_db_if_not_exists {
 
   if [ "$RESULT" == "$1" ]; then
       echo Database $1 does exists
+      #replace tedb_user_login.cnf file in case the password was changed since the last run
+      bash -c ./install/create_tedb_login.sh
   else
     echo Database $1 does not exists
     export TE_MANAGEMENT_DB_NAME=$1
@@ -49,6 +51,19 @@ export TE_MANAGEMENT_DB_PASSWORD=$DBPASSWORD
 create_db_if_not_exists ${DBUSER_CAPS}_TE_MANAGEMENT_JP_MECAB
 create_db_if_not_exists ${DBUSER_CAPS}_TE_MANAGEMENT_DE_TREETAGGER
 create_db_if_not_exists ${DBUSER_CAPS}_TE_MANAGEMENT_EN_TREETAGGER
+
+#if password changed the copy of the cnf will differ from the new cnf
+#in this case find all properties files with the property 'DbPassword' and replace it
+if ! $(cmp --silent "$MYSQL_TE_MANAGEMENT_LOGIN_FILE" "${MYSQL_TE_MANAGEMENT_LOGIN_FILE}.copy"); then
+  echo "password changed till the last run => update password for user ${DBUSER}"
+  PROPFILES=($(find /topicexplorer/ -type f -name '*.properties' -exec grep -l "DbPassword=[^<]" {} \;))
+  for PROPFILE in "${PROPFILES[@]}"
+  do
+    sed -i "/^DbPassword=/c\DbPassword=${DBPASSWORD}" $PROPFILE
+    echo $PROPFILE
+  done
+fi
+yes | cp -f "$MYSQL_TE_MANAGEMENT_LOGIN_FILE" "${MYSQL_TE_MANAGEMENT_LOGIN_FILE}.copy"
 
 export JRE_HOME=/usr/lib/jvm/default-java
 cd /topicexplorer/apache-tomcat-6.0.53

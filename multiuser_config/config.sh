@@ -1,10 +1,10 @@
 #!/bin/bash
 #this bash configures nginx, a topicexplorer for each user and a database
 
-if [[ $EUID -ne 0 ]]; then
-    echo "This script must be run as root" 
-    exit 1
-fi
+#if [[ $EUID -ne 0 ]]; then
+#    echo "This script must be run as root" 
+#    exit 1
+#fi
 
 
 
@@ -25,6 +25,9 @@ sed "s/<DB_RAMSIZE>/$(echo $DB_RAMSIZE | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\
 yes | cp -f "config.ini" "db/config.ini"
 yes | cp -f "templates/nginx_default_header.conf" "templates/tmp_nginx"
 yes | cp -f "templates/docker-compose-header.yml" "templates/tmp_docker"
+
+htpasswd -c -b adminer.pw root $DB_ROOT_PW
+
 for i in "${!USERS[@]}"
 do 
     USER=${USERS[${i}]}
@@ -32,6 +35,7 @@ do
     PASSWORD=${PASSWORDS[${i}]}
     #create password file
     htpasswd -c -b $USER.pw $USER $PASSWORD
+    htpasswd -b adminer.pw $USER $PASSWORD
     mv -f "$USER.pw" "${NGINX_VOLUME_PATH}/pw"
 
     mkdir -p "${TE_VOLUME_PATH}/${USER}"
@@ -56,6 +60,8 @@ do
 
 done 
 
+mv -f "adminer.pw" "${NGINX_VOLUME_PATH}/pw"
+
 #replace in Dockerfile
 PROXY_DEP="$(printf "\055 topicexplorer-%s<newline>" "${USERS[@]}")"
 cat "templates/docker-compose-footer.yml" |\
@@ -74,6 +80,7 @@ yes | cp -f "templates/nginx-logging.conf.org" "${NGINX_VOLUME_PATH}/config/logg
 yes | cp -f "templates/nginx-modsecurity.conf.org" "${NGINX_VOLUME_PATH}/config/modsecurity.conf.template"
 yes | cp -f "RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf" "${NGINX_VOLUME_PATH}/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf"
 
-
+#build db with new config file
+docker compose build topicexplorer-db
 #start container
 docker compose up

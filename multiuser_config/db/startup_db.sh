@@ -45,18 +45,39 @@ _______________________________________________________________________________
   mysql -u root --password=$DB_ROOT_PW -s -e "${QUERY}"
 }
 
+###########################
+#change password
+###########################
+function change_db_password {
+  
+  #Write SQL commands to QUERY variable
+  read -r -d '' QUERY << \
+_______________________________________________________________________________
+
+  ALTER USER '${USER}'@'%' IDENTIFIED BY '${TE_MANAGEMENT_DB_PASSWORD}';
+  FLUSH PRIVILEGES;
+_______________________________________________________________________________
+
+  #echo ${QUERY}
+  mysql -u root --password=$DB_ROOT_PW -s -e "${QUERY}"
+}
+
 for i in "${!USERS[@]}"
 do 
     USER=${USERS[${i}]}
     USER_CAPS=$(echo ${USER} | tr '[:lower:]' '[:upper:]')
     PASSWORD=${PASSWORDS[${i}]}
+    TE_MANAGEMENT_DB_PASSWORD=$PASSWORD
+    TE_MANAGEMENT_DB_USER=$USER
+    #Query for existing user
     QUERY="SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = '${USER}');"
     RESULT=$(mysql -u root --password=$DB_ROOT_PW -s -e "${QUERY}")
     if [[ "$RESULT" == "0" ]]; then
-      TE_MANAGEMENT_DB_PASSWORD=$PASSWORD
-      TE_MANAGEMENT_DB_USER=$USER
       create_db_user
       echo "Nutzer ${USER} wurde angelegt"
+    else
+      #Renew password in case of changes
+      change_db_password
     fi
 done 
 
