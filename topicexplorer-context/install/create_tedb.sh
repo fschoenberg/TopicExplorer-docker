@@ -49,22 +49,9 @@ if [ ! -v TE_MANAGEMENT_DB_PASSWORD ]; then
     exit 1
 fi
 
-# create sql commands for user creation
+# create sql commands
 SOURCE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-CREATE_TEDB_USER="$TE_BASE_DIR"/config/create_tedb_user.sql
-#replace placeholders in temporary config files
-cat "$SOURCE"/create_tedb_user.sql |\
-sed "s/<TE_MANAGEMENT_DB_NAME>/$(echo $TE_MANAGEMENT_DB_NAME | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"       |\
-sed "s/<TE_MANAGEMENT_DB_USER>/$(echo $TE_MANAGEMENT_DB_USER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"       |\
-sed "s/<TE_DBSERVER>/$(echo $TE_DBSERVER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"       |\
-sed "s/<TE_DBSERVER_4MYSQL>/$(echo $TE_DBSERVER_4MYSQL | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"       |\
-sed "s/<TE_WEBSERVER>/$(echo $TE_WEBSERVER | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"       |\
-sed "s/<TE_MANAGEMENT_DB_PASSWORD>/$(echo $TE_MANAGEMENT_DB_PASSWORD | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" >"$CREATE_TEDB_USER"
-chmod 600 "$CREATE_TEDB_USER"
 
-# printf "Run as mariadb root:\n\nmysql -u root -p <$CREATE_TEDB_USER\n\n"
-
-# mysql -u root --password=$(cat /topicexplorer/te_mysql_password) <"$CREATE_TEDB_USER"
 
 TEDB_USER_LOGIN="$TE_BASE_DIR"/config/tedb_user_login.cnf
 cat "$SOURCE"/tedb_user_login.cnf |\
