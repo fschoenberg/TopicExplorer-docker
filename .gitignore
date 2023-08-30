@@ -7,4 +7,6 @@
 /multiuser_config/db/db-config-file.cnf
 /multiuser_config/docker-compose.yml
 /multiuser_config/TODO
+/docker-compose-mariadb.yml
+/docker-compose-mariadb-rescue.yml
 

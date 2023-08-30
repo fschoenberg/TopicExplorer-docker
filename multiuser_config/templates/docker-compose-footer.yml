@@ -15,6 +15,7 @@
 
   adminer:
     image: adminer:4.8.1-standalone
+    command: php -S 0.0.0.0:8080 -t /var/www/html
     restart: always
     depends_on:
       - topicexplorer-db
@@ -31,12 +32,14 @@
     volumes:
       - <NGINX_VOLUME_PATH>/config/:/etc/nginx/templates/conf.d/
       - <NGINX_VOLUME_PATH>/pw/:/etc/nginx/pw/
+      - <NGINX_VOLUME_PATH>/certs/:/etc/certs/
       - <NGINX_VOLUME_PATH>/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf:/etc/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
     depends_on:
       <PROXY_DEP>
       - adminer
     ports:
       - <SERVERPORT>:80
+      - 443:443
       
 
   phpmyadmin:
@@ -45,7 +48,8 @@
     depends_on:
       - topicexplorer-db
     environment:
+      - PMA_ABSOLUTE_URI=<HOST_URI>/pma
       - PMA_HOST=topicexplorer-db   
       - UPLOAD_LIMIT=250M
     ports:
-      - 8003:80
+      - 80
