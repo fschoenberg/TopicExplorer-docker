@@ -1,13 +1,7 @@
 #!/bin/bash
 #this bash configures nginx, a topicexplorer for each user and a database
 
-#if [[ $EUID -ne 0 ]]; then
-#    echo "This script must be run as root" 
-#    exit 1
-#fi
-
-
-
+docker compose -f ../docker-compose-build-te.yml build topicexplorer
 
 source <(grep = config.ini)
 
@@ -70,6 +64,7 @@ sed "s/<newline>/\n      /g" |\
 sed "s/<DB_VOLUME_PATH>/$(echo $DB_VOLUME_PATH | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"       |\
 sed "s/<DB_ROOT_PW>/$(echo $DB_ROOT_PW | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"       |\
 sed "s/<SERVERPORT>/$(echo $SERVERPORT | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"       |\
+sed "s/<HOST_URI>/$(echo $HOST_URI | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g"       |\
 sed "s/<NGINX_VOLUME_PATH>/$(echo $NGINX_VOLUME_PATH | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" >> "templates/tmp_docker"
 mv -f "templates/tmp_docker" "docker-compose.yml"
 
