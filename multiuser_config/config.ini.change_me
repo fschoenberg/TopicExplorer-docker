@@ -6,4 +6,5 @@ DB_VOLUME_PATH=/te_volumes/db
 NGINX_VOLUME_PATH=/te_volumes/nginx
 DB_RAMSIZE=4GB
 SERVERPORT=80
+HOST_URI=https://localhost
 
