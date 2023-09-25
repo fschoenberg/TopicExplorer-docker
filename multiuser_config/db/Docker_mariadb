@@ -3,9 +3,7 @@ FROM mariadb:10.11
 #COPY db_user_creation.sh /te_user_creation/
 COPY config.ini /te_user_creation/
 COPY startup_db.sh /
-COPY db-config-file.cnf /etc/mysql/conf.d/config-file.cnf
 
-RUN chmod 700 /etc/mysql/conf.d/config-file.cnf
 RUN chmod +x /startup_db.sh
 #RUN chmod +x /te_user_creation/db_user_creation.sh
 

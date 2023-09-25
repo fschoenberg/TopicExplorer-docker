@@ -4,7 +4,7 @@ DB_ROOT_PW="root_pw"
 TE_VOLUME_PATH=/te_volumes/te
 DB_VOLUME_PATH=/te_volumes/db
 NGINX_VOLUME_PATH=/te_volumes/nginx
-DB_RAMSIZE=4GB
+DB_RAMSIZE=4G
 SERVERPORT=80
 HOST_URI=https://localhost
 

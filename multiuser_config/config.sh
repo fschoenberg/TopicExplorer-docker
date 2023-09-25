@@ -11,10 +11,12 @@ mkdir -p "${NGINX_VOLUME_PATH}/pw"
 mkdir -p "${NGINX_VOLUME_PATH}/rules"
 mkdir -p "${TE_VOLUME_PATH}"
 mkdir -p "${DB_VOLUME_PATH}"
+mkdir -p "${DB_VOLUME_PATH}/config"
 
 #create db_config file
 cat "templates/db-config-file.cnf" |\
-sed "s/<DB_RAMSIZE>/$(echo $DB_RAMSIZE | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" > "db/db-config-file.cnf"
+sed "s/<DB_RAMSIZE>/$(echo $DB_RAMSIZE | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" > "${DB_VOLUME_PATH}/config/db-config-file.cnf"
+chmod 700 "${DB_VOLUME_PATH}/config/db-config-file.cnf"
 
 yes | cp -f "config.ini" "db/config.ini"
 yes | cp -f "templates/nginx_default_header.conf" "templates/tmp_nginx"
