@@ -14,9 +14,11 @@ mkdir -p "${DB_VOLUME_PATH}"
 mkdir -p "${DB_VOLUME_PATH}/config"
 
 #create db_config file
-cat "templates/db-config-file.cnf" |\
-sed "s/<DB_RAMSIZE>/$(echo $DB_RAMSIZE | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" > "${DB_VOLUME_PATH}/config/my.cnf"
-chmod 744 "${DB_VOLUME_PATH}/config/my.cnf"
+if [ ! -f "${DB_VOLUME_PATH}/config/my.cnf" ]; then
+    cat "templates/db-config-file.cnf" |\
+    sed "s/<DB_RAMSIZE>/$(echo $DB_RAMSIZE | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/g" > "${DB_VOLUME_PATH}/config/my.cnf"
+    chmod 744 "${DB_VOLUME_PATH}/config/my.cnf"
+fi
 
 yes | cp -f "config.ini" "db/config.ini"
 yes | cp -f "templates/nginx_default_header.conf" "templates/tmp_nginx"
