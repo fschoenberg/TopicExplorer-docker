@@ -38,7 +38,8 @@ _______________________________________________________________________________
 
   CREATE USER '${USER}'@'%' IDENTIFIED BY '${TE_MANAGEMENT_DB_PASSWORD}';
   GRANT USAGE ON *.* TO '${USER}'@'%' REQUIRE NONE;
-  GRANT ALL PRIVILEGES ON $(echo -e '\u0060')${USER_CAPS}\_%$(echo -e '\u0060').* TO '${USER}'@'%'; 
+  GRANT ALL PRIVILEGES ON $(echo -e '\u0060')${USER_CAPS}\_%$(echo -e '\u0060').* TO '${USER}'@'%' WITH GRANT OPTION; 
+  GRANT SELECT \($(echo -e '\u0060')User$(echo -e '\u0060')\) ON mysql.user TO '${USER}'@'%';
 _______________________________________________________________________________
 
   #echo ${QUERY}
