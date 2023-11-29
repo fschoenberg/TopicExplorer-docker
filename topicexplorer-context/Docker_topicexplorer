@@ -9,7 +9,7 @@ RUN git clone https://github.com/hinneburg/lucene-analyzer-treetagger.git
 
 FROM alpine/git AS git-repo-TopicExplorer-explainer
 WORKDIR /repos
-RUN git clone https://github.com/hinneburg/TopicExplorer-explainer.git
+RUN git clone https://github.com/fschoenberg/TopicExplorer-explainer.git
 
 FROM alpine/git AS git-repo-grobid-client-java
 WORKDIR /repos
